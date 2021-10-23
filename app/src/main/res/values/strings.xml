@@ -2,4 +2,11 @@
     <string name="app_name">StudyWithCam</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+
+
+    <!-- fragment_statistic -->
+    <string name="statistic_title1">오늘의 공부 시간</string>
+    <string name="statistic_title2">오늘의 끈기 그래프</string>
+    <string name="statistic_graph_less">적게 공부했어요</string>
+    <string name="statistic_graph_more">많이 공부했어요</string>
 </resources>

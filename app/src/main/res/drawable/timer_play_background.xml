@@ -4,7 +4,7 @@
         android:gravity="center">
         <shape
             android:shape="oval">
-            <solid android:color="@color/mainOrange"/>
+            <solid android:color="@color/lightGray"/>
         </shape>
     </item>
     <item
