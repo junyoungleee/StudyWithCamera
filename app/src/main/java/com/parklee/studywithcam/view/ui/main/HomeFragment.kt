@@ -1,19 +1,26 @@
-package com.parklee.studywithcam.view.ui
+package com.parklee.studywithcam.view.ui.main
 
 import android.os.Bundle
+import android.view.Gravity
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageButton
 import android.widget.TextView
-import androidx.core.content.ContextCompat
+import androidx.drawerlayout.widget.DrawerLayout
+import com.google.firebase.auth.FirebaseAuth
 import com.parklee.studywithcam.R
 import com.parklee.studywithcam.SWCapplication
+import com.parklee.studywithcam.view.format.ClockFormat
 
 class HomeFragment : Fragment() {
 
     lateinit var nTimeTextView: TextView
     lateinit var cTimeTextView: TextView
+    private var clockFormat = ClockFormat()
+
+    lateinit var auth: FirebaseAuth
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -24,6 +31,8 @@ class HomeFragment : Fragment() {
         nTimeTextView = view.findViewById(R.id.home_now_tv)
         cTimeTextView = view.findViewById(R.id.home_cumul_tv)
 
+        auth = FirebaseAuth.getInstance()
+
         return view
     }
 
@@ -33,20 +42,8 @@ class HomeFragment : Fragment() {
         var nSec = SWCapplication.pref.getPrefTime("nTime")
         var cSec = SWCapplication.pref.getPrefTime("cTime")
 
-        nTimeTextView.text = calSecToString(nSec)
-        cTimeTextView.text = calSecToString(cSec)
+        nTimeTextView.text = clockFormat.calSecToString(nSec)
+        cTimeTextView.text = clockFormat.calSecToString(cSec)
     }
-
-    private fun calSecToString(time: Int): String {
-        var hour = time / 3600
-        var min = (time - (hour*3600)) / 60
-        var sec = (time - (hour*3600)) % 60
-        return "${makeText(hour)} : ${makeText(min)} : ${makeText(sec)}"
-    }
-
-    private fun makeText(t: Int): String {
-        if (t < 10) return "0${t}" else return "$t"
-    }
-
 
 }

@@ -1,24 +1,21 @@
 package com.parklee.studywithcam.view.ui
 
 import android.Manifest
-import android.app.DownloadManager
 import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import com.parklee.studywithcam.R
 import com.parklee.studywithcam.SWCapplication
 import com.parklee.studywithcam.databinding.ActivityStudyBinding
+import com.parklee.studywithcam.view.format.ClockFormat
 import com.parklee.studywithcam.viewmodel.TimerViewModel
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -28,6 +25,7 @@ class StudyActivity : AppCompatActivity() {
     private lateinit var binding: ActivityStudyBinding
     private lateinit var timerVM: TimerViewModel
     private lateinit var cameraExecutor: ExecutorService
+    private var clockFormat = ClockFormat()
 
     companion object {
         private const val REQUEST_CODE_PERMISSIONS = 10
@@ -46,11 +44,11 @@ class StudyActivity : AppCompatActivity() {
         timerVM.startTimer(init)  // 현재 타이머: 0, 누적 타이머: init
 
         timerVM.nTime.observe(this, Observer { time ->
-            binding.studyNowTv.text = calSecToString(time)
+            binding.studyNowTv.text = clockFormat.calSecToString(time)
         })
 
         timerVM.cTime.observe(this, Observer { time ->
-            binding.studyCumulTv.text = calSecToString(time)
+            binding.studyCumulTv.text = clockFormat.calSecToString(time)
         })
 
         // 카메라
@@ -91,13 +89,11 @@ class StudyActivity : AppCompatActivity() {
 
         cameraProviderFuture.addListener(Runnable {
             val cameraProvider: ProcessCameraProvider = cameraProviderFuture.get()
-
             val preview = Preview.Builder().build().also {
                 it.setSurfaceProvider(binding.studyPreview.surfaceProvider)
             }
 
             val cameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA
-
             try {
                 cameraProvider.unbindAll()
                 cameraProvider.bindToLifecycle(this, cameraSelector, preview)
@@ -108,18 +104,6 @@ class StudyActivity : AppCompatActivity() {
     }
 
     //----------------------------------------------------------------------------------
-    // 타이머 String 생성
-    private fun calSecToString(time: Int): String {
-        var hour = time / 3600
-        var min = (time - (hour*3600)) / 60
-        var sec = (time - (hour*3600)) % 60
-        return "${makeText(hour)} : ${makeText(min)} : ${makeText(sec)}"
-    }
-
-    private fun makeText(t: Int): String {
-        if (t < 10) return "0${t}" else return "$t"
-    }
-
     // 타이머 멈춤 & 저장
     private fun stopTimerButtonAction() {
         binding.studyTimerButton.setOnClickListener {
