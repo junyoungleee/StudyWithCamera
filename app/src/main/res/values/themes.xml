@@ -1,6 +1,6 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Theme.StudyWithCam" parent="Theme.AppCompat.DayNight.NoActionBar">
+    <style name="Theme.StudyWithCam" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Primary brand color. -->
         <item name="colorPrimary">@color/purple_500</item>
         <item name="colorPrimaryVariant">@color/white</item>
@@ -28,9 +28,8 @@
         <item name="android:textStyle">bold</item>
     </style>
 
-    <style name="subtitle_text">
-        <item name="android:textColor">@color/black</item>
-        <item name="android:textSize">18sp</item>
+    <style name="subtitle_text" parent="context_text">
+        <item name="android:textStyle">bold</item>
     </style>
 
     <style name="context_text_alert" parent="context_text">
@@ -43,7 +42,13 @@
     </style>
 
     <style name="timer_text" parent="title_text">
-        <item name="android:textSize">28sp</item>
+        <item name="android:textSize">24sp</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:textColor">@color/mainOrange</item>
+    </style>
+
+    <style name="mini_text" parent="context_text">
+        <item name="android:textSize">13sp</item>
     </style>
 
 

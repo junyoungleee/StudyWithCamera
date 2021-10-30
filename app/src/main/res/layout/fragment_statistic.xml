@@ -17,85 +17,124 @@
             style="@style/title_text"/>
     </androidx.appcompat.widget.Toolbar>
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/statistic_title1"
+        style="@style/subtitle_text"
+        android:paddingLeft="20dp"/>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:paddingTop="10dp"
-        android:paddingBottom="10dp"
-        android:paddingRight="20dp"
-        android:paddingLeft="20dp">
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/statistic_title1"
-            style="@style/context_text_alert"
-            android:layout_marginBottom="5dp"/>
-        <TextView
-            android:id="@+id/statistic_today_tv"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="00 : 00 : 00"
-            style="@style/title_text"
-            android:textSize="28sp"/>
-
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp">
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:background="@drawable/text_round_background"
+            android:paddingRight="20dp"
+            android:paddingLeft="20dp"
+            android:paddingTop="15dp"
+            android:paddingBottom="15dp"
+            android:layout_margin="10dp"
+            android:gravity="center"
+            android:elevation="5dp">
             <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="이번달 평균 시간 "
-                style="@style/context_text"/>
-            <TextView
-                android:id="@+id/statistic_month_avg_tv"
+                android:id="@+id/statistic_today_tv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="00 : 00 : 00"
-                style="@style/context_text"/>
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text=" 보다 "
-                style="@style/context_text"/>
+                style="@style/timer_text" />
         </LinearLayout>
 
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:paddingRight="20dp"
+            android:paddingLeft="20dp"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            android:background="@drawable/text_round_background"
+            android:backgroundTint="@color/darkWhite"
+            android:layout_marginBottom="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginLeft="10dp">
             <TextView
-                android:id="@+id/statistic_month_gap_tv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="1시간 59분 "
+                android:text="@string/statistic_title2"
                 style="@style/context_text"/>
             <TextView
-                android:layout_width="wrap_content"
+                android:id="@+id/statistic_month_avg_tv"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/statistic_graph_more"
+                android:gravity="right"
+                android:text="00 : 00 : 00"
                 style="@style/context_text"/>
         </LinearLayout>
+
+    </LinearLayout>
+
+
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="5dp"
+        android:layout_gravity="center">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="이번달 평균"
+            style="@style/mini_text"/>
+
+        <TextView
+            android:id="@+id/statistic_month_middle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="보다"
+            android:paddingRight="5dp"
+            style="@style/mini_text"/>
+
+        <TextView
+            android:id="@+id/statistic_month_gap_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="1시간 59분"
+            android:layout_marginRight="5dp"
+            style="@style/mini_text"/>
+        <TextView
+            android:id="@+id/statistic_month_context_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/statistic_graph_more"
+            style="@style/mini_text"/>
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:paddingTop="10dp"
+        android:paddingTop="40dp"
         android:paddingBottom="10dp"
         android:paddingRight="20dp"
         android:paddingLeft="20dp">
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/statistic_title2"
-            style="@style/context_text_alert"
-            android:layout_marginBottom="5dp"/>
-        <View
+            android:text="@string/statistic_title3"
+            style="@style/subtitle_text"/>
+
+        <com.github.mikephil.charting.charts.LineChart
+            android:id="@+id/statistic_chart"
             android:layout_width="match_parent"
-            android:layout_height="150dp"
+            android:layout_height="200dp"
             android:background="@color/lightGray"/>
 
     </LinearLayout>

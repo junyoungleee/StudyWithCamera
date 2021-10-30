@@ -9,6 +9,12 @@ class ClockFormat {
         return "${makeText(hour)} : ${makeText(min)} : ${makeText(sec)}"
     }
 
+    fun calSecToKorean(time: Int): String {
+        var hour = time / 3600
+        var min = (time - (hour*3600)) / 60
+        return "${makeText(hour)}시간 ${makeText(min)}분"
+    }
+
     private fun makeText(t: Int): String {
         if (t < 10) return "0${t}" else return "$t"
     }
