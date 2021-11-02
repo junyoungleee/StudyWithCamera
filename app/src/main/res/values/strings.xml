@@ -23,10 +23,8 @@
     <string name="nav_header_desc">Navigation header</string>
     <string name="action_settings">Settings</string>
 
-    <string name="statistic_graph0">공부 안함</string>
-    <string name="statistic_graph1">집중력 저하</string>
-    <string name="statistic_graph2">집중 30분 미만</string>
-    <string name="statistic_graph3">집중 30분 이상</string>
+    <string name="statistic_graph_description1">공부 시작 20분마다 등급은 상승되고,</string>
+    <string name="statistic_graph_description2">n분 이상 집중력 저하로 판단되면 등급이 떨어집니다!</string>
 
 
     <string name="menu_home">Home</string>

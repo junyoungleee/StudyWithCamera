@@ -76,12 +76,14 @@ dependencies {
 
     // CameraX
     def camerax_version = "1.0.1"
+    implementation "androidx.camera:camera-core:$camerax_version"
     implementation "androidx.camera:camera-camera2:$camerax_version"
     implementation "androidx.camera:camera-lifecycle:$camerax_version"
     implementation "androidx.camera:camera-view:1.0.0-alpha27"
 
     // Retrofit
     implementation "com.squareup.retrofit2:retrofit:2.9.0"
+    implementation 'com.squareup.retrofit2:converter-gson:2.5.0'
     // Retrofit with Moshi Converter
     implementation "com.squareup.retrofit2:converter-scalars:2.9.0"
 
@@ -89,6 +91,12 @@ dependencies {
     implementation 'com.google.firebase:firebase-auth-ktx:21.0.1'
     implementation 'com.google.android.gms:play-services-auth:18.1.0'
 
+    // Model
+    implementation 'com.google.firebase:firebase-ml-vision:24.0.3'
+    implementation 'com.google.mlkit:face-detection:16.1.2'
+    implementation 'com.google.android.gms:play-services-mlkit-text-recognition:16.1.0'
+
     // Graph
     implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'
+
 }

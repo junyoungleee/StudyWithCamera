@@ -3,9 +3,11 @@ package com.parklee.studywithcam.network
 import retrofit2.Retrofit
 import retrofit2.converter.scalars.ScalarsConverterFactory
 import retrofit2.create
-import retrofit2.http.GET
+import retrofit2.http.*
+import java.util.*
+import kotlin.collections.HashMap
 
-private const val BASE_URL = "https://172.20.10.2:2443/"
+private const val BASE_URL = ""
 private val retrofit = Retrofit.Builder()
     .addConverterFactory(ScalarsConverterFactory.create())
     .baseUrl(BASE_URL)
@@ -21,4 +23,8 @@ interface ServerApiService {
 
     @GET("statics")
     suspend fun getDummy(): String
+
+    @POST("stopTimer")
+    suspend fun postDummy(@Body params: HashMap<String, Any>)
+
 }

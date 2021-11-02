@@ -7,10 +7,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.core.content.ContextCompat
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.XAxis
-import com.github.mikephil.charting.components.YAxis
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
@@ -18,8 +16,8 @@ import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet
 import com.parklee.studywithcam.R
 import com.parklee.studywithcam.SWCapplication
-import com.parklee.studywithcam.model.entity.PatienceChart
 import com.parklee.studywithcam.view.format.ClockFormat
+import com.parklee.studywithcam.view.format.DateAxisValueFormat
 import java.lang.Math.abs
 import java.util.*
 import kotlin.collections.ArrayList
@@ -52,6 +50,7 @@ class StatisticFragment : Fragment() {
         monthGapTV = view.findViewById(R.id.statistic_month_gap_tv)
         monthMiddleTV = view.findViewById(R.id.statistic_month_middle)
         monthGapConTV = view.findViewById(R.id.statistic_month_context_tv)
+        setTodayStatistic()
 
         chart = view.findViewById(R.id.statistic_chart)
         initChartData()
@@ -60,6 +59,7 @@ class StatisticFragment : Fragment() {
         return view
     }
 
+    // 시간 세팅 메서드
     private fun setTodayStatistic() {
         var cSec = SWCapplication.pref.getPrefTime("cTime")
         todayTV.text = clockFormat.calSecToString(cSec)
@@ -87,26 +87,24 @@ class StatisticFragment : Fragment() {
         }
     }
 
+    // 차트 데이터 초기화 메서드
     private fun initChartData() {
         chartData.add(Entry(0f, 0f))
-        chartData.add(Entry(6f, 0f))
-        chartData.add(Entry(12f, 3f))
-        chartData.add(Entry(13f, 3f))
-        chartData.add(Entry(13f, 0f))
-        chartData.add(Entry(18f, 0f))
-        chartData.add(Entry(19f, 2f))
-        chartData.add(Entry(19.5f, 2f))
-        chartData.add(Entry(24f, 0f))
+        chartData.add(Entry((6*60).toFloat(), 0f))
+        chartData.add(Entry((12*60).toFloat(), 1f))
+        chartData.add(Entry((18*60).toFloat(), 2f))
+        chartData.add(Entry((24*60).toFloat(), 0f))
 
         var set = LineDataSet(chartData, "set1")
         set.lineWidth = 2F
         set.setDrawValues(false)
-//      set.mode = LineDataSet.Mode.CUBIC_BEZIER
+        set.mode = LineDataSet.Mode.HORIZONTAL_BEZIER
 
         lineDataSet.add(set)
         lineData = LineData(lineDataSet)
     }
 
+    // 차트 초기화 메서드
     private fun initChart() {
         chart.run {
             setDrawGridBackground(false)
@@ -116,27 +114,31 @@ class StatisticFragment : Fragment() {
 
         val xAxis = chart.xAxis
         xAxis.setDrawLabels(true)  // Label 표시 여부
+        xAxis.axisMaximum = 1440f  // 60min * 24hour
+        xAxis.axisMinimum = 0f
+        xAxis.valueFormatter = DateAxisValueFormat()
+
         xAxis.textColor = Color.BLACK
-        xAxis.position = XAxis.XAxisPosition.BOTTOM  // x축 Label의 위치
+        xAxis.position = XAxis.XAxisPosition.BOTTOM  // x축 라벨 위치
         xAxis.setDrawLabels(true)  // Grid-line 표시
         xAxis.setDrawAxisLine(true)  // Axis-Line 표시
 
+        // 왼쪽 y축 값
         val yLAxis = chart.axisLeft
-        yLAxis.axisMaximum = 3.5f
-        yLAxis.axisMinimum = -0.5f
+        yLAxis.axisMaximum = 5.5f   // y축 최대값(고정)
+        yLAxis.axisMinimum = -0.5f  // y축 최소값(고정)
 
+        // 왼쪽 y축 도메인 변경
         val yAxisVals = ArrayList<String>(Arrays.asList("F", "D", "C", "B", "A", "A+"))
         yLAxis.valueFormatter = IndexAxisValueFormatter(yAxisVals)
 
+        // 오른쪽 y축 값
         val yRAxis = chart.axisRight
         yRAxis.setDrawLabels(false)
         yRAxis.setDrawAxisLine(false)
         yRAxis.setDrawGridLines(false)
 
-
-
-
-        chart!!.description.isEnabled = false
+        chart!!.description.isEnabled = false  // 설명
         chart!!.data = lineData
 
         chart!!.invalidate()  // 다시 그리기

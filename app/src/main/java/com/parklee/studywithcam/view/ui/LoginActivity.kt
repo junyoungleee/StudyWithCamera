@@ -78,6 +78,7 @@ class LoginActivity : AppCompatActivity() {
     private fun moveMainPage(user: FirebaseUser?) {
         if (user != null) {
             startActivity(Intent(this, MainActivity::class.java))
+            Toast.makeText(this, "로그인 성공!", Toast.LENGTH_SHORT).show()
             finish()
         }
     }

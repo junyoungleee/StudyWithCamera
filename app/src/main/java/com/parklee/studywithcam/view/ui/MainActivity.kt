@@ -15,6 +15,8 @@ import com.parklee.studywithcam.view.ui.main.GroupFragment
 import com.parklee.studywithcam.view.ui.main.HomeFragment
 import com.parklee.studywithcam.view.ui.main.StatisticFragment
 import com.parklee.studywithcam.viewmodel.ServerViewModel
+import java.util.*
+import kotlin.collections.HashMap
 
 class MainActivity : AppCompatActivity() {
 
@@ -26,6 +28,7 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+//        initToolbar()
         initNavigationBar()
         initStartButton()
 
@@ -33,11 +36,17 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-
     // 시작 버튼 초기화
     private fun initStartButton() {
         binding.timerButton.setOnClickListener {
-            //serverVM.getDummy() // Test
+//            serverVM.getDummy() // Test
+
+            val hash = HashMap<String, Any>()
+            hash.put("name", "lee")
+            hash.put("address", "seoul")
+            hash.put("age", 23)
+//            serverVM.postDummy(hash)
+
             val studyIntent = Intent(applicationContext, StudyActivity::class.java)
             startActivity(studyIntent)
         }
@@ -73,4 +82,12 @@ class MainActivity : AppCompatActivity() {
     private fun changeFragment(fragment: Fragment) {
         supportFragmentManager.beginTransaction().replace(binding.container.id, fragment).commit()
     }
+
+    private fun initToolbar() {
+        setSupportActionBar(binding.mainToolbar)
+        supportActionBar?.setDisplayShowTitleEnabled(true)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_menu)
+    }
+
 }
