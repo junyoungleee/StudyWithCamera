@@ -17,7 +17,8 @@ import com.github.mikephil.charting.interfaces.datasets.ILineDataSet
 import com.parklee.studywithcam.R
 import com.parklee.studywithcam.SWCapplication
 import com.parklee.studywithcam.view.format.ClockFormat
-import com.parklee.studywithcam.view.format.DateAxisValueFormat
+import com.parklee.studywithcam.view.graph.TimeAxisValueFormat
+import com.parklee.studywithcam.view.graph.LineMarkerView
 import java.lang.Math.abs
 import java.util.*
 import kotlin.collections.ArrayList
@@ -89,16 +90,22 @@ class StatisticFragment : Fragment() {
 
     // 차트 데이터 초기화 메서드
     private fun initChartData() {
-        chartData.add(Entry(0f, 0f))
+        chartData.add(Entry(-240f, 0f))
         chartData.add(Entry((6*60).toFloat(), 0f))
-        chartData.add(Entry((12*60).toFloat(), 1f))
-        chartData.add(Entry((18*60).toFloat(), 2f))
-        chartData.add(Entry((24*60).toFloat(), 0f))
+        chartData.add(Entry((6*60+20).toFloat(), 1f))
+        chartData.add(Entry((6*60+40).toFloat(), 2f))
+        chartData.add(Entry((6*60+60).toFloat(), 3f))
+        chartData.add(Entry((6*60+80).toFloat(), 2f))
+        chartData.add(Entry((6*60+100).toFloat(), 0f))
+        chartData.add(Entry((12*60).toFloat(), 0f))
+        chartData.add(Entry((12*60+15).toFloat(), 0f))
+        chartData.add(Entry((1200).toFloat(), 0f))
 
         var set = LineDataSet(chartData, "set1")
         set.lineWidth = 2F
         set.setDrawValues(false)
-        set.mode = LineDataSet.Mode.HORIZONTAL_BEZIER
+        set.highLightColor = Color.TRANSPARENT
+        set.mode = LineDataSet.Mode.STEPPED
 
         lineDataSet.add(set)
         lineData = LineData(lineDataSet)
@@ -114,9 +121,10 @@ class StatisticFragment : Fragment() {
 
         val xAxis = chart.xAxis
         xAxis.setDrawLabels(true)  // Label 표시 여부
-        xAxis.axisMaximum = 1440f  // 60min * 24hour
-        xAxis.axisMinimum = 0f
-        xAxis.valueFormatter = DateAxisValueFormat()
+        xAxis.axisMaximum = 1200f  // 60min * 24hour
+        xAxis.axisMinimum = -240f
+        xAxis.labelCount = 5
+        xAxis.valueFormatter = TimeAxisValueFormat()
 
         xAxis.textColor = Color.BLACK
         xAxis.position = XAxis.XAxisPosition.BOTTOM  // x축 라벨 위치
@@ -125,18 +133,23 @@ class StatisticFragment : Fragment() {
 
         // 왼쪽 y축 값
         val yLAxis = chart.axisLeft
-        yLAxis.axisMaximum = 5.5f   // y축 최대값(고정)
+        yLAxis.axisMaximum = 4.5f   // y축 최대값(고정)
         yLAxis.axisMinimum = -0.5f  // y축 최소값(고정)
 
         // 왼쪽 y축 도메인 변경
-        val yAxisVals = ArrayList<String>(Arrays.asList("F", "D", "C", "B", "A", "A+"))
+        val yAxisVals = ArrayList<String>(Arrays.asList("F", "C", "B", "A", "A+"))
         yLAxis.valueFormatter = IndexAxisValueFormatter(yAxisVals)
+        yLAxis.granularity = 1f
 
         // 오른쪽 y축 값
         val yRAxis = chart.axisRight
         yRAxis.setDrawLabels(false)
         yRAxis.setDrawAxisLine(false)
         yRAxis.setDrawGridLines(false)
+
+        val marker = LineMarkerView(requireContext(), R.layout.graph_marker)
+        marker.chartView = chart
+        chart.marker = marker
 
         chart!!.description.isEnabled = false  // 설명
         chart!!.data = lineData
