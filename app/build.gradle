@@ -90,11 +90,18 @@ dependencies {
     // Firebase
     implementation 'com.google.firebase:firebase-auth-ktx:21.0.1'
     implementation 'com.google.android.gms:play-services-auth:18.1.0'
+    implementation 'com.google.firebase:firebase-ml-modeldownloader-ktx'
+    implementation platform('com.google.firebase:firebase-bom:28.4.2')
 
     // Model
     implementation 'com.google.firebase:firebase-ml-vision:24.0.3'
     implementation 'com.google.mlkit:face-detection:16.1.2'
     implementation 'com.google.android.gms:play-services-mlkit-text-recognition:16.1.0'
+
+    implementation 'org.tensorflow:tensorflow-lite:2.3.0'
+    implementation 'org.tensorflow:tensorflow-lite-support:0.2.0'
+    implementation 'org.tensorflow:tensorflow-lite-metadata:0.2.1'
+    implementation 'org.tensorflow:tensorflow-lite-gpu:2.7.0-rc0'
 
     // Graph
     implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'

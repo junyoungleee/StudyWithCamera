@@ -9,6 +9,9 @@ import android.view.View
 import androidx.core.view.GravityCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import com.google.firebase.ml.modeldownloader.CustomModelDownloadConditions
+import com.google.firebase.ml.modeldownloader.DownloadType
+import com.google.firebase.ml.modeldownloader.FirebaseModelDownloader
 import com.parklee.studywithcam.R
 import com.parklee.studywithcam.databinding.ActivityMainBinding
 import com.parklee.studywithcam.view.ui.main.GroupFragment

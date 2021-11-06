@@ -97,8 +97,6 @@ class StatisticFragment : Fragment() {
         chartData.add(Entry((6*60+60).toFloat(), 3f))
         chartData.add(Entry((6*60+80).toFloat(), 2f))
         chartData.add(Entry((6*60+100).toFloat(), 0f))
-        chartData.add(Entry((12*60).toFloat(), 0f))
-        chartData.add(Entry((12*60+15).toFloat(), 0f))
         chartData.add(Entry((1200).toFloat(), 0f))
 
         var set = LineDataSet(chartData, "set1")
