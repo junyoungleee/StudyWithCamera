@@ -1,21 +1,25 @@
 # StudyWithCamera
-[종합설계 1] 학습자 행동분석을 통한 학습 모니터링 서비스
+[종합설계 1] 학습자 행동분석을 통한 학습 모니터링 서비스 
 
-## :carrot:  Goal
-### 1차 목표 (2021.10)
-+ **안드로이드**
-  - 회원 가입(Firebase Auth)
-  - 공부 측정 및 분석(타이머, 카메라, 그래프)
-+ **Node.js**
-  - 데이터베이스 구축 및 연동
-+ **이미지 분석 모델**
-  - face detection, landmark 추출 및 분석
+## Introduction
+This is an Android Application for measuring, improving, and managing self-directed learnes' learning status.
+#### version 1.0.0 (2021.10 ~ 2021.11)
++ Analysis of learners' real-time concentration
++ Statistical data : Daily learning time, weekly average learning time, concentration graph
 
+## Development Environment
++ Android Studio 4.2.2 - Build #AI-202.7660.26.42.7486908, built on June 24, 2021
++ MongoDB
++ Tensorflow-lite
 
-## :rabbit: 팀 바기바기 
-|팀원|역할|깃허브|
-|--|--|--|
-|이준영|안드로이드|junyouneleee|
-|박소영|백엔드|psystar99|
-|이윤정|AI|-|
-|박지원|AI|-|
+<img src="https://user-images.githubusercontent.com/55984242/140636896-929e0c3b-fb69-4da2-ad8c-b9fb5f2ae994.jpg" height="300px"/>
+
+## Application Version
+~~~
+android {
+    defaultConfig {
+        minSdkVersion 21
+        targetSdkVersion 30
+    }
+~~~
+
