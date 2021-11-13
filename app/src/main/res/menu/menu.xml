@@ -15,6 +15,6 @@
     <item
         android:id="@+id/statistic"
         android:icon="@drawable/ic_statistic"
-        android:title="나의 공부량"/>
+        android:title="리포트"/>
 
 </menu>
