@@ -2,7 +2,7 @@
     <!-- Base application theme. -->
     <style name="Theme.StudyWithCam" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Primary brand color. -->
-        <item name="colorPrimary">@color/purple_500</item>
+        <item name="colorPrimary">@color/mainOrange</item>
         <item name="colorPrimaryVariant">@color/white</item>
         <item name="colorOnPrimary">@color/white</item>
         <!-- Secondary brand color. -->
@@ -67,6 +67,15 @@
     <!-- Statistic -->
     <style name="timer_text_alert" parent="timer_text">
         <item name="android:textColor">@color/mainOrange</item>
+    </style>
+
+    <style name="statistic_fragment_button" parent="title_text">
+        <item name="android:layout_width">50dp</item>
+        <item name="android:layout_height">50dp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textColor">@drawable/statistic_fragment_button_text</item>
+        <item name="android:background">@drawable/statistic_fragment_button</item>
+        <item name="android:layout_marginRight">15dp</item>
     </style>
 
 

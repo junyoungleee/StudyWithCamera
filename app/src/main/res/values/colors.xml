@@ -12,7 +12,7 @@
     <color name="darkOrange">#FF5721</color>
     <color name="darkGray">#474747</color>
     <color name="mainGray">#AEAEAE</color>
-    <color name="transGray">#C4C4C4C4</color>
+    <color name="transGray">#CDEFEFEF</color>
     <color name="lightGray">#C4C4C4</color>
     <color name="darkWhite">#EFEFEF</color>
 </resources>

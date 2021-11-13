@@ -23,7 +23,9 @@
             android:layout_gravity="right"
             android:src="@drawable/ic_menu"
             android:background="@null"
-            android:layout_marginRight="25dp"/>
+            android:paddingRight="10dp"
+            android:paddingLeft="10dp"
+            android:layout_marginRight="15dp"/>
     </androidx.appcompat.widget.Toolbar>
 
     <LinearLayout

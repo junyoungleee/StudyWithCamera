@@ -31,7 +31,6 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-//        initToolbar()
         initNavigationBar()
         initStartButton()
 
@@ -86,11 +85,5 @@ class MainActivity : AppCompatActivity() {
         supportFragmentManager.beginTransaction().replace(binding.container.id, fragment).commit()
     }
 
-    private fun initToolbar() {
-        setSupportActionBar(binding.mainToolbar)
-        supportActionBar?.setDisplayShowTitleEnabled(true)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_menu)
-    }
 
 }
