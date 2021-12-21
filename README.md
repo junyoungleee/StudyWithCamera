@@ -26,3 +26,5 @@ android {
     }
 ~~~
 
+## How it works
+:triangular_flag_on_post: you can watch how it works [HERE in YOUTUBE](https://www.youtube.com/watch?v=tVrpZoe7DSg)
