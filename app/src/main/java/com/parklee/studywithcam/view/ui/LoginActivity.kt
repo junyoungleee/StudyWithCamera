@@ -16,6 +16,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
 import com.parklee.studywithcam.R
+import com.parklee.studywithcam.SWCapplication
 import com.parklee.studywithcam.databinding.ActivityLoginBinding
 
 class LoginActivity : AppCompatActivity() {
@@ -76,6 +77,8 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun moveMainPage(user: FirebaseUser?) {
+        SWCapplication.pref.setUid("uid", auth?.currentUser?.uid.toString())  // sharedpreference: uid 저장
+
         if (user != null) {
             startActivity(Intent(this, MainActivity::class.java))
             Toast.makeText(this, "로그인 성공!", Toast.LENGTH_SHORT).show()

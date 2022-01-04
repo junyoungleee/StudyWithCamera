@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.lifecycle.ViewModelProvider
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.Entry
@@ -16,9 +17,12 @@ import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet
 import com.parklee.studywithcam.R
 import com.parklee.studywithcam.SWCapplication
+import com.parklee.studywithcam.model.entity.DayStudys
 import com.parklee.studywithcam.view.format.ClockFormat
 import com.parklee.studywithcam.view.graph.LineMarkerView
 import com.parklee.studywithcam.view.graph.TimeAxisValueFormat
+import com.parklee.studywithcam.viewmodel.ServerViewModel
+import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -27,16 +31,20 @@ class StatisticDayFragment : Fragment() {
     // 오늘의 공부량
     private var clockFormat = ClockFormat()
     lateinit var todayTV: TextView
-    lateinit var monthAvgTV: TextView
-    lateinit var monthGapTV: TextView
-    lateinit var monthMiddleTV: TextView
-    lateinit var monthGapConTV: TextView
+    lateinit var beforeTV: TextView
+    lateinit var beforeGapTV: TextView
+    lateinit var dayMiddleTV: TextView
+    lateinit var dayGapConTV: TextView
 
     // 끈기 그래프
+    private lateinit var graphData: DayStudys
     private var chartData = ArrayList<Entry>()
     private var lineDataSet = ArrayList<ILineDataSet>()
     private var lineData: LineData = LineData()
     lateinit var chart: LineChart
+
+    private lateinit var uid: String
+    private lateinit var serverVM: ServerViewModel
 
 
     override fun onCreateView(
@@ -46,11 +54,16 @@ class StatisticDayFragment : Fragment() {
         var view = inflater.inflate(R.layout.fragment_statistic_day, container, false)
 
         todayTV = view.findViewById(R.id.statistic_today_tv)
-        monthAvgTV = view.findViewById(R.id.statistic_month_avg_tv)
-        monthGapTV = view.findViewById(R.id.statistic_month_gap_tv)
-        monthMiddleTV = view.findViewById(R.id.statistic_month_middle)
-        monthGapConTV = view.findViewById(R.id.statistic_month_context_tv)
+        beforeTV = view.findViewById(R.id.statistic_before_tv)
+        beforeGapTV = view.findViewById(R.id.statistic_before_gap_tv)
+        dayMiddleTV = view.findViewById(R.id.statistic_day_middle)
+        dayGapConTV = view.findViewById(R.id.statistic_day_context_tv)
         setTodayStatistic()
+
+        uid = SWCapplication.pref.getUid("uid")
+
+//        serverVM = ViewModelProvider(this).get(ServerViewModel::class.java) // Test
+//        serverVM.getDailyGraphData(uid, getTodayDate()) // Test
 
         chart = view.findViewById(R.id.statistic_chart)
         initChartData()
@@ -65,25 +78,25 @@ class StatisticDayFragment : Fragment() {
         todayTV.text = clockFormat.calSecToString(cSec)
 
         var avgSec = 0 // DB에서 가져와야 할 값
-        monthAvgTV.text = clockFormat.calSecToString(avgSec)
+        beforeTV.text = clockFormat.calSecToString(avgSec)
 
         var gap = cSec - avgSec
         if (gap > 0) {
             // 현재 누적 공부시간이 더 많은 경우
-            monthGapTV.text = clockFormat.calSecToKorean(gap)
-            monthMiddleTV.text = getString(R.string.statistic_graph_middle_moreless)
-            monthGapConTV.text = getString(R.string.statistic_graph_more)
+            beforeGapTV.text = clockFormat.calSecToKorean(gap)
+            dayMiddleTV.text = getString(R.string.statistic_graph_middle_moreless)
+            dayGapConTV.text = getString(R.string.statistic_graph_more)
         } else if (gap == 0) {
             // 현재 누적 시간과 이달 평균 시간이 같은 경우
-            monthGapTV.text = ""
-            monthMiddleTV.text = getString(R.string.statistic_graph_middle_same)
-            monthGapConTV.text = getString(R.string.statistic_graph_same)
+            beforeGapTV.text = ""
+            dayMiddleTV.text = getString(R.string.statistic_graph_middle_same)
+            dayGapConTV.text = getString(R.string.statistic_graph_same)
         } else {
             // 이달 평균 시간이 더 많은 경우
             gap = Math.abs(gap)
-            monthGapTV.text = clockFormat.calSecToKorean(gap)
-            monthMiddleTV.text = getString(R.string.statistic_graph_middle_moreless)
-            monthGapConTV.text = getString(R.string.statistic_graph_less)
+            beforeGapTV.text = clockFormat.calSecToKorean(gap)
+            dayMiddleTV.text = getString(R.string.statistic_graph_middle_moreless)
+            dayGapConTV.text = getString(R.string.statistic_graph_less)
         }
     }
 
@@ -152,6 +165,12 @@ class StatisticDayFragment : Fragment() {
         chart!!.data = lineData
 
         chart!!.invalidate()  // 다시 그리기
+    }
+
+    private fun getTodayDate(): String {
+        var date = Date(System.currentTimeMillis())
+        var todayDateFormat = SimpleDateFormat("yyyy-MM-dd")
+        return todayDateFormat.format(date)
     }
 
 }

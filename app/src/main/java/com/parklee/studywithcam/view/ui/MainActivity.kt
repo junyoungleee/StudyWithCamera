@@ -34,14 +34,11 @@ class MainActivity : AppCompatActivity() {
         initNavigationBar()
         initStartButton()
 
-        serverVM = ViewModelProvider(this).get(ServerViewModel::class.java)  // Test
-
     }
 
     // 시작 버튼 초기화
     private fun initStartButton() {
         binding.timerButton.setOnClickListener {
-//            serverVM.getDummy() // Test
 
             val hash = HashMap<String, Any>()
             hash.put("name", "lee")

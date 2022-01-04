@@ -19,7 +19,7 @@
             style="@style/subtitle_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/statistic_title1" />
+            android:text="@string/statistic_day_title1" />
 
         <TextView
             android:id="@+id/statistic_today_tv"
@@ -51,10 +51,10 @@
                 style="@style/context_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/statistic_title2" />
+                android:text="@string/statistic_day_title2" />
 
             <TextView
-                android:id="@+id/statistic_month_avg_tv"
+                android:id="@+id/statistic_before_tv"
                 style="@style/context_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -73,11 +73,11 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="이번달 평균"
+            android:text="어제의 나"
             style="@style/mini_text"/>
 
         <TextView
-            android:id="@+id/statistic_month_middle"
+            android:id="@+id/statistic_day_middle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="보다"
@@ -85,14 +85,14 @@
             style="@style/mini_text"/>
 
         <TextView
-            android:id="@+id/statistic_month_gap_tv"
+            android:id="@+id/statistic_before_gap_tv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="1시간 59분"
             android:layout_marginRight="5dp"
             style="@style/mini_text"/>
         <TextView
-            android:id="@+id/statistic_month_context_tv"
+            android:id="@+id/statistic_day_context_tv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/statistic_graph_more"
@@ -110,7 +110,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/statistic_title3"
+            android:text="@string/statistic_day_title3"
             style="@style/subtitle_text"/>
 
         <com.github.mikephil.charting.charts.LineChart

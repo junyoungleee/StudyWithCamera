@@ -6,9 +6,7 @@ import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import android.view.ViewGroup
 import android.widget.Toast
-import androidx.camera.core.AspectRatio
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.Preview
@@ -17,18 +15,23 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import com.google.firebase.ml.modeldownloader.CustomModelDownloadConditions
-import com.google.firebase.ml.modeldownloader.DownloadType
-import com.google.firebase.ml.modeldownloader.FirebaseModelDownloader
 import com.parklee.studywithcam.SWCapplication
 import com.parklee.studywithcam.databinding.ActivityStudyBinding
+import com.parklee.studywithcam.model.entity.FocusX
+import com.parklee.studywithcam.model.entity.StopStudys
+import com.parklee.studywithcam.model.entity.Study
+import com.parklee.studywithcam.network.Repository
+import com.parklee.studywithcam.network.ServerApi
 import com.parklee.studywithcam.view.format.ClockFormat
 import com.parklee.studywithcam.viewmodel.ServerViewModel
+import com.parklee.studywithcam.viewmodel.ServerViewModelFactory
 import com.parklee.studywithcam.viewmodel.TimerViewModel
 import com.parklee.studywithcam.vision.DrowsinessAnalyzer
-import com.parklee.studywithcam.vision.FaceImageAnalyzer
 import com.parklee.studywithcam.vision.VisionOverlay
-import org.tensorflow.lite.Interpreter
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import okhttp3.Dispatcher
 import java.util.concurrent.Executors
 
 class StudyActivity : AppCompatActivity() {
@@ -37,11 +40,14 @@ class StudyActivity : AppCompatActivity() {
     private lateinit var timerVM: TimerViewModel
     private lateinit var serverVM: ServerViewModel
 
+    // Camera + Model
     private var cameraExecutor = Executors.newSingleThreadExecutor()
     private lateinit var overlay: VisionOverlay
     private var clockFormat = ClockFormat()
-
     private lateinit var drowsinessAnalyzer: DrowsinessAnalyzer
+
+    // preference
+    private lateinit var uid: String
 
     companion object {
         private const val REQUEST_CODE_PERMISSIONS = 10
@@ -49,28 +55,43 @@ class StudyActivity : AppCompatActivity() {
         private const val TAG = "DETECT RESULT : "
     }
 
+    // retrofit_server
+    lateinit var repository: Repository
+    lateinit var viewModelFactory: ServerViewModelFactory
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityStudyBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-//        serverVM = ViewModelProvider(this).get(ServerViewModel::class.java)  // Test
+        uid = SWCapplication.pref.getUid("uid") // uid 받아오기
+
+        repository = Repository()
+        viewModelFactory = ServerViewModelFactory(repository)
+        serverVM = ViewModelProvider(this, viewModelFactory).get(ServerViewModel::class.java)
 
         // 타이머
         var init = SWCapplication.pref.getPrefTime("cTime")
-
         timerVM = ViewModelProvider(this).get(TimerViewModel::class.java)
         timerVM.startTimer(init)  // 현재 타이머: 0, 누적 타이머: init
 
         timerVM.nTime.observe(this, Observer { time ->
-            binding.studyNowTv.text = clockFormat.calSecToString(time)
-        })
-
+            binding.studyNowTv.text = clockFormat.calSecToString(time) })
         timerVM.cTime.observe(this, Observer { time ->
-            binding.studyCumulTv.text = clockFormat.calSecToString(time)
-        })
+            binding.studyCumulTv.text = clockFormat.calSecToString(time) })
 
         drowsinessAnalyzer = DrowsinessAnalyzer(this)
+
+//        serverVM.getCalendarData(uid, 1)
+//        serverVM.cal_data.observe(this, Observer {
+//            Log.d("Response_1", it.toString())
+//        })
+//
+//        serverVM.getDailyGraphData(uid, "2021-11-21")
+//        serverVM.graph_data.observe(this, Observer {
+//            Log.d("Response_2", it.toString())
+//        })
+
 
         // 카메라
 //        overlay = VisionOverlay(this)
@@ -138,7 +159,6 @@ class StudyActivity : AppCompatActivity() {
                     )
                 }
 
-
             try {
                 cameraProvider.unbindAll()  // rebinding 전 모든 케이스 unbind
                 cameraProvider.bindToLifecycle(this, cameraSelector, preview, analysisUseCase)  // bind use case to camera
@@ -149,15 +169,19 @@ class StudyActivity : AppCompatActivity() {
     }
 
 
-
-
-
     //----------------------------------------------------------------------------------
     // 타이머 멈춤 & 저장
     private fun stopTimerButtonAction() {
         binding.studyTimerButton.setOnClickListener {
             timerVM.stopTimer()
-//            serverVM.getDummy() // Test
+
+            // post dummy data
+            var dummyStudys: List<Study> = listOf(Study("123000", "125000"))
+            var dummyFocusX: List<FocusX> = listOf(FocusX("졺", "123500", "124000"), FocusX("졺", "124300", "124500"))
+
+//            var dummyData = StopStudys(dummyStudys, dummyFocusX)
+//            serverVM.postStudyData("dummydummy", dummyData) // 성공
+
 
             SWCapplication.pref.setPrefTime("cTime", timerVM.cTime.value!!.toInt())
             SWCapplication.pref.setPrefTime("nTime", timerVM.nTime.value!!.toInt())
