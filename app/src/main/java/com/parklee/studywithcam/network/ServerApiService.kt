@@ -1,30 +1,57 @@
 package com.parklee.studywithcam.network
 
+import com.parklee.studywithcam.model.entity.DayStudyCal
+import com.parklee.studywithcam.model.entity.DayStudys
+import com.parklee.studywithcam.model.entity.StopStudys
+import com.parklee.studywithcam.network.NetworkConstants.Companion.BASE_URL
+import com.squareup.moshi.FromJson
+import com.squareup.moshi.JsonAdapter
+import com.squareup.moshi.Moshi
+import com.squareup.moshi.Types
+import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
+import kotlinx.coroutines.Deferred
 import retrofit2.Retrofit
-import retrofit2.converter.scalars.ScalarsConverterFactory
-import retrofit2.create
+import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.http.*
+import java.lang.reflect.Type
 import java.util.*
-import kotlin.collections.HashMap
 
-private const val BASE_URL = ""
-private val retrofit = Retrofit.Builder()
-    .addConverterFactory(ScalarsConverterFactory.create())
-    .baseUrl(BASE_URL)
+
+private val moshi = Moshi.Builder()
+    .add(KotlinJsonAdapterFactory())
     .build()
 
 object ServerApi {
+    private val retrofit by lazy {
+        Retrofit.Builder()
+            .addConverterFactory(MoshiConverterFactory.create(moshi))
+            .baseUrl(BASE_URL)
+            .build()
+    }
     val retrofitService : ServerApiService by lazy {
         retrofit.create(ServerApiService::class.java)
     }
 }
 
+
 interface ServerApiService {
 
-    @GET("statics")
-    suspend fun getDummy(): String
+    // 타이머 멈췄을 때, 서버에 공부구간 데이터 보냄
+    @Headers("content-type: application/json")
+    @POST("stopTimer/{id}")
+    suspend fun postStudyData(@Path("id") uid: String,
+                              @Body studyData: StopStudys)
 
-    @POST("stopTimer")
-    suspend fun postDummy(@Body params: HashMap<String, Any>)
+    // 통계(일간) - 끈기그래프
+    @GET("statics/{id}/{date}")
+    suspend fun getDailyGraphData(@Path("id") uid: String,
+                                  @Path("date") date: String): List<DayStudys>
+
+    // 통계 - 캘린더 컬러 데이터
+    @GET("calendar/{id}/{month}")
+    suspend fun getCalendarData(@Path("id") uid: String,
+                                @Path("month") month: Int): List<DayStudyCal>
 
 }
+
+
