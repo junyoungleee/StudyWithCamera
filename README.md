@@ -2,10 +2,13 @@
 [종합설계 1] 학습자 행동분석을 통한 학습 모니터링 서비스 
 
 ## Introduction
-This is an Android Application for measuring, improving, and managing self-directed learnes' learning status.
-#### version 1.0.0 (2021.10 ~ 2021.11)
+*This is an Android Application for measuring, improving, and managing self-directed learnes' learning status.*
+#### version 1.0 (2021.10 ~ 2021.11.8)
 + Analysis of learners' real-time concentration
 + Statistical data : Daily learning time, weekly average learning time, concentration graph
+#### version 1.1 (2021.11 ~ 2021.12)
++ Analysis of learners' real-time concentration (model update)
++ Statistical data : Daily, Weekly, Monthly UI update
 
 ## Development Environment
 + Android Studio 4.2.2 - Build #AI-202.7660.26.42.7486908, built on June 24, 2021
@@ -23,3 +26,5 @@ android {
     }
 ~~~
 
+## How it works
+:triangular_flag_on_post: you can watch how it works [HERE in YOUTUBE](https://www.youtube.com/watch?v=tVrpZoe7DSg)
