@@ -10,21 +10,21 @@ class GraphViewModel : ViewModel() {
     // Entry 타입 사용 (x: Float, y: Float)
     // 레벨 : 0 ~ 5 (20분마다 레벨 1 상승, 집중력 저하 시 레벨 1 하강)
 
-    private val _graphData = MutableLiveData<Entry>()
-    val graphData: LiveData<Entry>
-        get() = _graphData
+    private val _dayGraphData = MutableLiveData<Entry>()
+    val dayGraphData: LiveData<Entry>
+        get() = _dayGraphData
 
-    fun levelDown(time: Float) {
+    fun dayGraphLevelDown() {
         // 집중력 저하 시, 레벨 1
 
     }
 
-    fun levelUp() {
+    fun dayGraphLevelUp() {
         // 20분마다 레벨 1 상승
 
     }
 
-    fun stopStudy() {
+    fun dayGraphStopStudy() {
         // 공부를 끝내면 레벨 0
     }
 }
