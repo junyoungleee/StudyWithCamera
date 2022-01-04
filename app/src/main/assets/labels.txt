@@ -1,4 +1,4 @@
-하품O
-하품X
-눈감음
-눈뜸
+eyeO + mouthO
+eyeX + mouthO
+eyeO + mouthX
+eyeX + mouthX

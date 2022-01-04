@@ -82,7 +82,7 @@ class DrowsinessAnalyzer {
         var size = if (height > width) width else height
         var imageProcessor = ImageProcessor.Builder()
             .add(ResizeWithCropOrPadOp(size, size))
-            .add(ResizeOp(145, 145, ResizeOp.ResizeMethod.BILINEAR))
+            .add(ResizeOp(400, 400, ResizeOp.ResizeMethod.BILINEAR))
             .add(Rot90Op(rotation))
             .build()
 
@@ -125,8 +125,6 @@ class DrowsinessAnalyzer {
                 result += "$label : $probability\n"
 
             }
-            result += if (probabilites[0] > probabilites[1]) "\n하품" else "\n-"
-            result += if (probabilites[2] > probabilites[3]) "\n눈감음" else "\n눈뜸"
 
             result += "\n결과 : ${associatedAxisLabels[maxIdx]}"
          }
