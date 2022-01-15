@@ -1,4 +1,4 @@
-eyeO + mouthO
+eyeX + mouthX
 eyeX + mouthO
 eyeO + mouthX
-eyeX + mouthX
+eyeO + mouthO

@@ -6,7 +6,10 @@ import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.util.Rational
+import android.util.Size
 import android.widget.Toast
+import androidx.camera.core.AspectRatio
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.Preview
@@ -59,6 +62,9 @@ class StudyActivity : AppCompatActivity() {
     lateinit var repository: Repository
     lateinit var viewModelFactory: ServerViewModelFactory
 
+    // check StudyX
+    private var notFocusCnt: Int = 0
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityStudyBinding.inflate(layoutInflater)
@@ -82,6 +88,8 @@ class StudyActivity : AppCompatActivity() {
 
         drowsinessAnalyzer = DrowsinessAnalyzer(this)
 
+
+
 //        serverVM.getCalendarData(uid, 1)
 //        serverVM.cal_data.observe(this, Observer {
 //            Log.d("Response_1", it.toString())
@@ -94,12 +102,6 @@ class StudyActivity : AppCompatActivity() {
 
 
         // 카메라
-//        overlay = VisionOverlay(this)
-//        val layoutOverlay = ViewGroup.LayoutParams(
-//            ViewGroup.LayoutParams.WRAP_CONTENT,
-//            ViewGroup.LayoutParams.WRAP_CONTENT
-//        )
-//        this.addContentView(overlay, layoutOverlay)
 
         cameraExecutor = Executors.newSingleThreadExecutor()
         if (allPermissionsGranted()) {
@@ -111,6 +113,10 @@ class StudyActivity : AppCompatActivity() {
 
         // 돌아가기
         stopTimerButtonAction()
+    }
+
+    private fun startNotFocus() {
+
     }
 
     //----------------------------------------------------------------------------------
@@ -140,12 +146,14 @@ class StudyActivity : AppCompatActivity() {
         cameraProviderFuture.addListener(Runnable {
             val cameraProvider: ProcessCameraProvider = cameraProviderFuture.get()  // lifecycle & 카메라 bind
             val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA // default : 정면 카메라
+
             // CameraX preview(미리보기)
             val preview = Preview.Builder().build().also {
                 it.setSurfaceProvider(binding.studyPreview.surfaceProvider)
             }
 
             val analysisUseCase = ImageAnalysis.Builder()
+                .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                 .build()
                 .also {
                     it.setAnalyzer(

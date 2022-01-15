@@ -57,76 +57,49 @@ class DrowsinessAnalyzer {
         FirebaseModelDownloader.getInstance()
             .getModel("Drowsiness-Detector", DownloadType.LOCAL_MODEL, conditions)
             .addOnCompleteListener {
-                // Download complete. Depending on your app, you could enable the ML
-                // feature, or switch from the local model to the remote model, etc.
-                Toast.makeText(context, "Model download complete", Toast.LENGTH_SHORT).show()
             }
             .addOnSuccessListener { model ->
                 val modelFile = model?.file
                 if (modelFile != null) {
                     interpreter = Interpreter(modelFile)
-                    Log.d("model path", model!!.file!!.path.toString())
                 }
             }
-
     }
 
     @SuppressLint("UnsafeOptInUsageError")
     public fun classifyFace(image: ImageProxy): String {
         var img: Image = image.image!!
         var bitmap: Bitmap = imageProcessing.toBitmap(img)
-        var rotation = imageProcessing.getImageRotation(image)
         var width = bitmap.width
         var height = bitmap.height
+        Log.d("비트맵", "w:${width}, h:${height}")
 
         var size = if (height > width) width else height
+        var inputSize = 224  //model input size
         var imageProcessor = ImageProcessor.Builder()
             .add(ResizeWithCropOrPadOp(size, size))
-            .add(ResizeOp(400, 400, ResizeOp.ResizeMethod.BILINEAR))
-            .add(Rot90Op(rotation))
+            .add(ResizeOp(inputSize, inputSize, ResizeOp.ResizeMethod.BILINEAR))
             .build()
 
-//        var tensorImage = TensorImage(DataType.UINT8)
-//        tensorImage.load(bitmap)
-//        tensorImage = imageProcessor.process(tensorImage)
+        var tensorImage = TensorImage(DataType.FLOAT32)
+        tensorImage.load(bitmap)
+        tensorImage = imageProcessor.process(tensorImage)
 
-        var imageBuffer = imageProcessing.toByteBuffer(bitmap)
+        var resultBuffer = TensorBuffer.createFixedSize(intArrayOf(4), DataType.FLOAT32)
 
-//        var resultBuffer = TensorBuffer.createFixedSize(IntArray(4), DataType.FLOAT32)
-        val bufferSize = 4 * java.lang.Float.SIZE / java.lang.Byte.SIZE
-        val modelOutput = ByteBuffer.allocateDirect(bufferSize).order(ByteOrder.nativeOrder())
 
         if (interpreter != null) {
-//            interpreter.run(tensorImage.buffer, resultBuffer.buffer)
-            interpreter.run(imageBuffer, modelOutput)
+            interpreter.run(tensorImage.buffer, resultBuffer.buffer)
         }
 
         var resultProcessor: TensorProcessor = TensorProcessor.Builder().add(NormalizeOp(0f, 255f)).build()
-        modelOutput.rewind()
-        val probabilites = modelOutput.asFloatBuffer()
 
         var result = ""
-        var max = -1f
-        var maxIdx = 0
         if( associatedAxisLabels != null) {
-//            var labels = TensorLabel(associatedAxisLabels, resultProcessor.process(resultBuffer))
-//            var floatMap: Map<String, Float> = labels.mapWithFloatValue
-//            result = "${floatMap.keys}, ${floatMap.values}"
-//            Log.d("프라버빌리티", probabilites.capacity().toString())
-//            Log.d("어쏘시에이티드", associatedAxisLabels.size.toString())
+            var labels = TensorLabel(associatedAxisLabels, resultProcessor.process(resultBuffer))
+            var floatMap: Map<String, Float> = labels.mapWithFloatValue
 
-            for (i in 0..(probabilites.capacity()-1)) {
-                val probability = probabilites.get(i)
-                val label = associatedAxisLabels[i]
-                if (probability > max) {
-                    max = probability
-                    maxIdx = i
-                }
-                result += "$label : $probability\n"
-
-            }
-
-            result += "\n결과 : ${associatedAxisLabels[maxIdx]}"
+            result = imageProcessing.makeResult(floatMap)
          }
         return result
     }

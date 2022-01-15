@@ -3,9 +3,11 @@ package com.parklee.studywithcam.view.ui
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.Gravity
 import android.view.MenuItem
 import android.view.View
+import android.widget.Toast
 import androidx.core.view.GravityCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -18,6 +20,7 @@ import com.parklee.studywithcam.view.ui.main.GroupFragment
 import com.parklee.studywithcam.view.ui.main.HomeFragment
 import com.parklee.studywithcam.view.ui.main.StatisticFragment
 import com.parklee.studywithcam.viewmodel.ServerViewModel
+import org.tensorflow.lite.Interpreter
 import java.util.*
 import kotlin.collections.HashMap
 
@@ -33,6 +36,23 @@ class MainActivity : AppCompatActivity() {
 
         initNavigationBar()
         initStartButton()
+
+        val conditions = CustomModelDownloadConditions.Builder()
+            .requireWifi()
+            .build()
+        FirebaseModelDownloader.getInstance()
+            .getModel("Drowsiness-Detector", DownloadType.LOCAL_MODEL_UPDATE_IN_BACKGROUND, conditions)
+            .addOnCompleteListener {
+                // Download complete. Depending on your app, you could enable the ML
+                // feature, or switch from the local model to the remote model, etc.
+                Toast.makeText(this, "Model download complete", Toast.LENGTH_SHORT).show()
+            }
+            .addOnSuccessListener { model ->
+                val modelFile = model?.file
+                if (modelFile != null) {
+                    Log.d("model path", model!!.file!!.path.toString())
+                }
+            }
 
     }
 

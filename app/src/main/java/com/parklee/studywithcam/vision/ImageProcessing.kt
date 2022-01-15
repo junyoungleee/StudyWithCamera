@@ -37,33 +37,19 @@ class ImageProcessing {
         return BitmapFactory.decodeByteArray(imageByte, 0, imageByte.size)
     }
 
-    public fun toByteBuffer(bitmap: Bitmap): ByteBuffer {
-        val bitmap = Bitmap.createScaledBitmap(bitmap, 145, 145, true)
-        val input = ByteBuffer.allocateDirect(145*145*3*4).order(ByteOrder.nativeOrder())
-        for (y in 0 until 145) {
-            for (x in 0 until 145) {
-                val px = bitmap.getPixel(x, y)
+    fun makeResult(results: Map<String, Float>): String {
+        val resultList = results.toList().sortedByDescending { it.second }
 
-                // Get channel values from the pixel value.
-                val r = Color.red(px)
-                val g = Color.green(px)
-                val b = Color.blue(px)
+        var result = ""
+        result += "결과 : ${resultList[0].first}\n\n"
 
-                // Normalize channel values to [-1.0, 1.0]. This requirement depends on the model.
-                // For example, some models might require values to be normalized to the range
-                // [0.0, 1.0] instead.
-                val rf = (r - 127) / 255f
-                val gf = (g - 127) / 255f
-                val bf = (b - 127) / 255f
-
-                input.putFloat(rf)
-                input.putFloat(gf)
-                input.putFloat(bf)
-            }
+        val resultMap = resultList.toMap().toMutableMap()
+        resultMap.forEach { (label, value) ->
+            result += "${label} : ${value}\n"
         }
-        return input
-    }
 
+        return result
+    }
 
 }
 
