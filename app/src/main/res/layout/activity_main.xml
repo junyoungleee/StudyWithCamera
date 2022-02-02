@@ -43,14 +43,38 @@
         android:id="@+id/bottom_navigation_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/white"
-        android:paddingBottom="15dp"
-        app:itemIconTint="@drawable/nav_selected_tint"
-        app:itemTextColor="@drawable/nav_selected_tint"
+        style="@style/navigation_style"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/container"
         app:menu="@menu/menu" />
+
+    <LinearLayout
+        android:id="@+id/loading_animation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toTopOf="@id/timer_button"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:orientation="vertical">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@style/context_text_alert"
+            android:text="AI의 정확도를 높이는 중...\n지금은 측정기능을 사용할 수 없습니다"
+            android:textAlignment="center"
+            android:fontFamily="@font/elice_digital_baeum_regular"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="10dp"/>
+        <com.airbnb.lottie.LottieAnimationView
+            android:layout_width="match_parent"
+            android:layout_height="90dp"
+            android:layout_marginBottom="40dp"
+            app:lottie_rawRes="@raw/loading"
+            app:lottie_autoPlay="true"
+            app:lottie_loop="true"/>
+    </LinearLayout>
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

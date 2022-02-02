@@ -15,6 +15,13 @@
         <!-- Customize your theme here. -->
     </style>
 
+    <!-- NAVIGATION -->
+    <style name="navigation_style">
+        <item name="android:background">@color/white</item>
+        <item name="android:paddingBottom">15dp</item>
+        <item name="itemIconTint">@drawable/nav_selected_tint</item>
+        <item name="itemTextColor">@drawable/nav_selected_tint</item>
+    </style>
 
     <!-- TEXT STYLE -->
     <style name="context_text">
