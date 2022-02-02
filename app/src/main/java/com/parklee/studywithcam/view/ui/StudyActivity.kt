@@ -6,10 +6,7 @@ import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import android.util.Rational
-import android.util.Size
 import android.widget.Toast
-import androidx.camera.core.AspectRatio
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.Preview
@@ -20,21 +17,15 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.parklee.studywithcam.SWCapplication
 import com.parklee.studywithcam.databinding.ActivityStudyBinding
-import com.parklee.studywithcam.model.entity.FocusX
-import com.parklee.studywithcam.model.entity.StopStudys
+import com.parklee.studywithcam.model.entity.Disturb
 import com.parklee.studywithcam.model.entity.Study
-import com.parklee.studywithcam.network.Repository
-import com.parklee.studywithcam.network.ServerApi
+import com.parklee.studywithcam.repository.NetworkRepository
 import com.parklee.studywithcam.view.format.ClockFormat
 import com.parklee.studywithcam.viewmodel.ServerViewModel
 import com.parklee.studywithcam.viewmodel.ServerViewModelFactory
 import com.parklee.studywithcam.viewmodel.TimerViewModel
 import com.parklee.studywithcam.vision.DrowsinessAnalyzer
 import com.parklee.studywithcam.vision.VisionOverlay
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import okhttp3.Dispatcher
 import java.util.concurrent.Executors
 
 class StudyActivity : AppCompatActivity() {
@@ -59,7 +50,7 @@ class StudyActivity : AppCompatActivity() {
     }
 
     // retrofit_server
-    lateinit var repository: Repository
+    lateinit var repository: NetworkRepository
     lateinit var viewModelFactory: ServerViewModelFactory
 
     // check StudyX
@@ -72,7 +63,7 @@ class StudyActivity : AppCompatActivity() {
 
         uid = SWCapplication.pref.getUid("uid") // uid 받아오기
 
-        repository = Repository()
+        repository = NetworkRepository()
         viewModelFactory = ServerViewModelFactory(repository)
         serverVM = ViewModelProvider(this, viewModelFactory).get(ServerViewModel::class.java)
 
@@ -184,8 +175,8 @@ class StudyActivity : AppCompatActivity() {
             timerVM.stopTimer()
 
             // post dummy data
-            var dummyStudys: List<Study> = listOf(Study("123000", "125000"))
-            var dummyFocusX: List<FocusX> = listOf(FocusX("졺", "123500", "124000"), FocusX("졺", "124300", "124500"))
+//            var dummyStudys: List<Study> = listOf(Study("123000", "125000"))
+//            var dummyFocusX: List<Disturb> = listOf(Disturb("졺", "123500", "124000"), Disturb("졺", "124300", "124500"))
 
 //            var dummyData = StopStudys(dummyStudys, dummyFocusX)
 //            serverVM.postStudyData("dummydummy", dummyData) // 성공

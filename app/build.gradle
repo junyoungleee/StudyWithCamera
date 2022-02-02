@@ -11,7 +11,7 @@ android {
 
     defaultConfig {
         applicationId "com.parklee.studywithcam"
-        minSdkVersion 21
+        minSdkVersion 26
         targetSdkVersion 30
         versionCode 1
         versionName "1.0"
@@ -106,5 +106,12 @@ dependencies {
 
     // Graph
     implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'
+
+
+
+    // Lottie
+    def lottieVersion = "4.2.2"
+    implementation "com.airbnb.android:lottie:$lottieVersion"
+
 
 }

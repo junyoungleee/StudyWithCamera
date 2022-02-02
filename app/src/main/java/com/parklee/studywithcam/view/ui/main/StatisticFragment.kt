@@ -46,6 +46,7 @@ class StatisticFragment : Fragment() {
         dayButton = view.findViewById(R.id.statistic_day_btn_tv)
         weekButton = view.findViewById(R.id.statistic_week_btn_tv)
         monthButton = view.findViewById(R.id.statistic_month_btn_tv)
+
         initFrameLayout()
 
         return view
@@ -81,7 +82,9 @@ class StatisticFragment : Fragment() {
         childFragmentManager.beginTransaction().replace(R.id.statistic_frame_layout, fragment).commit()
     }
 
+    private fun clickCalendar() {
 
+    }
 
 
 

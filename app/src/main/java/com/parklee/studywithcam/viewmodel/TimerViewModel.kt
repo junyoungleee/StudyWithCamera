@@ -46,9 +46,4 @@ class TimerViewModel : ViewModel() {
         timeTask?.cancel()
     }
 
-//    fun stopTimer1(initSec: Int = sec) {
-//        timeTask?.cancel()
-//        sec = initSec
-//        _time.value = sec
-//    }
 }

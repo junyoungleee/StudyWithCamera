@@ -37,23 +37,7 @@ class MainActivity : AppCompatActivity() {
         initNavigationBar()
         initStartButton()
 
-        val conditions = CustomModelDownloadConditions.Builder()
-            .requireWifi()
-            .build()
-        FirebaseModelDownloader.getInstance()
-            .getModel("Drowsiness-Detector", DownloadType.LOCAL_MODEL_UPDATE_IN_BACKGROUND, conditions)
-            .addOnCompleteListener {
-                // Download complete. Depending on your app, you could enable the ML
-                // feature, or switch from the local model to the remote model, etc.
-                Toast.makeText(this, "Model download complete", Toast.LENGTH_SHORT).show()
-            }
-            .addOnSuccessListener { model ->
-                val modelFile = model?.file
-                if (modelFile != null) {
-                    Log.d("model path", model!!.file!!.path.toString())
-                }
-            }
-
+        modelDownLoad()
     }
 
     // 시작 버튼 초기화
@@ -102,5 +86,31 @@ class MainActivity : AppCompatActivity() {
         supportFragmentManager.beginTransaction().replace(binding.container.id, fragment).commit()
     }
 
+    private fun modelDownLoad() {
+        binding.loadingAnimation.visibility = View.VISIBLE
+        binding.timerButton.isClickable = false
+
+        val conditions = CustomModelDownloadConditions.Builder()
+            .requireWifi()
+            .build()
+
+        FirebaseModelDownloader.getInstance()
+            .getModel("Drowsiness-Detector", DownloadType.LOCAL_MODEL_UPDATE_IN_BACKGROUND, conditions)
+            .addOnCompleteListener {
+                // Download complete. Depending on your app, you could enable the ML
+                // feature, or switch from the local model to the remote model, etc.
+                binding.loadingAnimation.visibility = View.GONE
+                binding.timerButton.isClickable = true
+            }
+            .addOnSuccessListener { model ->
+                val modelFile = model?.file
+                if (modelFile != null) {
+                    Log.d("model path", model!!.file!!.path.toString())
+                }
+            }
+            .addOnFailureListener {
+                Toast.makeText(this, "AI 업그레이드 실패 : $it", Toast.LENGTH_SHORT).show()
+            }
+    }
 
 }
