@@ -42,6 +42,7 @@ android {
     repositories {
         maven { url "https://jitpack.io" }
     }
+
 }
 
 dependencies {
@@ -107,7 +108,8 @@ dependencies {
     // Graph
     implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'
 
-
+    // Calendar
+    implementation 'com.github.prolificinteractive:material-calendarview:2.0.1'
 
     // Lottie
     def lottieVersion = "4.2.2"

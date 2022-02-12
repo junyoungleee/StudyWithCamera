@@ -9,12 +9,12 @@ import java.nio.ByteOrder
 
 class ImageProcessing {
 
-    public fun getImageRotation(image: ImageProxy): Int {
+    fun getImageRotation(image: ImageProxy): Int {
         var rotation = image.imageInfo.rotationDegrees
         return rotation/90
     }
 
-    public fun toBitmap(image: Image): Bitmap {
+    fun toBitmap(image: Image): Bitmap {
         var planes: Array<Image.Plane> = image.planes
         var yBuffer: ByteBuffer = planes[0].buffer
         var uBuffer: ByteBuffer = planes[1].buffer

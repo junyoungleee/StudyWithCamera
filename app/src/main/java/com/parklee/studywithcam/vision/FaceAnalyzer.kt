@@ -4,12 +4,11 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Bitmap
 import android.media.Image
-import android.os.ParcelFileDescriptor.open
-import android.system.Os.open
 import android.util.Log
-import android.widget.Toast
 import androidx.camera.core.ImageProxy
-import com.google.firebase.installations.Utils
+import com.google.firebase.ml.common.modeldownload.FirebaseLocalModel
+import com.google.firebase.ml.common.modeldownload.FirebaseModelManager
+import com.google.firebase.ml.common.modeldownload.FirebaseRemoteModel
 import com.google.firebase.ml.modeldownloader.CustomModelDownloadConditions
 import com.google.firebase.ml.modeldownloader.DownloadType
 import com.google.firebase.ml.modeldownloader.FirebaseModelDownloader
@@ -22,31 +21,38 @@ import org.tensorflow.lite.support.image.ImageProcessor
 import org.tensorflow.lite.support.image.TensorImage
 import org.tensorflow.lite.support.image.ops.ResizeOp
 import org.tensorflow.lite.support.image.ops.ResizeWithCropOrPadOp
-import org.tensorflow.lite.support.image.ops.Rot90Op
 import org.tensorflow.lite.support.label.TensorLabel
 import org.tensorflow.lite.support.tensorbuffer.TensorBuffer
-import java.io.BufferedReader
+import java.io.File
 import java.io.IOException
-import java.io.InputStreamReader
-import java.nio.ByteBuffer
-import java.nio.ByteOrder
-import java.nio.channels.AsynchronousFileChannel.open
-import java.nio.channels.FileChannel.open
-import java.nio.channels.Pipe.open
 
-class DrowsinessAnalyzer {
+class FaceAnalyzer {
 
     private var context: Context
+    private lateinit var model: AiModel
+    lateinit var modelName: String
     lateinit var interpreter: Interpreter
-    var ASSOCIATED_AXIS_LABELS: String = "labels.txt"
+    var DROWSINESS_LABELS: String = "drowsiness_labels.txt"
+    var UNDERSTADING_LABELS: String = "understanding_labels.txt"
+
     lateinit var associatedAxisLabels: List<String>
     var imageProcessing = ImageProcessing()
 
-    constructor(context: Context) {
+    constructor(context: Context, model: AiModel) {
         this.context = context
+        this.model = model
 
         try {
-            associatedAxisLabels = FileUtil.loadLabels(context, ASSOCIATED_AXIS_LABELS)
+            when(model) {
+                AiModel.DROWSINESS -> {
+                    associatedAxisLabels = FileUtil.loadLabels(context, DROWSINESS_LABELS)
+                    modelName = "Drowsiness-Detector"
+                }
+                AiModel.UNDERSTANDING -> {
+                    associatedAxisLabels = FileUtil.loadLabels(context, UNDERSTADING_LABELS)
+                    modelName = "Understanding-Detector"
+                }
+            }
         } catch (e: IOException) {
             Log.e("tfliteSupport", "Error reading label file", e)
         }
@@ -55,9 +61,7 @@ class DrowsinessAnalyzer {
             .requireWifi()
             .build()
         FirebaseModelDownloader.getInstance()
-            .getModel("Drowsiness-Detector", DownloadType.LOCAL_MODEL, conditions)
-            .addOnCompleteListener {
-            }
+            .getModel(modelName, DownloadType.LOCAL_MODEL, conditions)
             .addOnSuccessListener { model ->
                 val modelFile = model?.file
                 if (modelFile != null) {
@@ -67,7 +71,7 @@ class DrowsinessAnalyzer {
     }
 
     @SuppressLint("UnsafeOptInUsageError")
-    public fun classifyFace(image: ImageProxy): String {
+    fun classifyFace(image: ImageProxy): String {
         var img: Image = image.image!!
         var bitmap: Bitmap = imageProcessing.toBitmap(img)
         var width = bitmap.width
@@ -75,7 +79,7 @@ class DrowsinessAnalyzer {
         Log.d("비트맵", "w:${width}, h:${height}")
 
         var size = if (height > width) width else height
-        var inputSize = 224  //model input size
+        var inputSize = 48  //model input size
         var imageProcessor = ImageProcessor.Builder()
             .add(ResizeWithCropOrPadOp(size, size))
             .add(ResizeOp(inputSize, inputSize, ResizeOp.ResizeMethod.BILINEAR))
@@ -85,23 +89,28 @@ class DrowsinessAnalyzer {
         tensorImage.load(bitmap)
         tensorImage = imageProcessor.process(tensorImage)
 
-        var resultBuffer = TensorBuffer.createFixedSize(intArrayOf(4), DataType.FLOAT32)
+        // 결과 버퍼
+        var resultBufferSize = when(model){
+            AiModel.DROWSINESS -> 4
+            AiModel.UNDERSTANDING -> 3
+        }
+        var resultBuffer = TensorBuffer.createFixedSize(intArrayOf(resultBufferSize), DataType.FLOAT32)
 
-
+        // 인터프리터 실행
         if (interpreter != null) {
             interpreter.run(tensorImage.buffer, resultBuffer.buffer)
         }
 
         var resultProcessor: TensorProcessor = TensorProcessor.Builder().add(NormalizeOp(0f, 255f)).build()
 
+        // 결과값 생성
         var result = ""
         if( associatedAxisLabels != null) {
             var labels = TensorLabel(associatedAxisLabels, resultProcessor.process(resultBuffer))
             var floatMap: Map<String, Float> = labels.mapWithFloatValue
 
             result = imageProcessing.makeResult(floatMap)
-         }
+        }
         return result
     }
-
 }
