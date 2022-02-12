@@ -7,8 +7,6 @@
     android:layout_height="match_parent"
     tools:context=".view.ui.StudyActivity">
 
-
-
     <TextView
         android:id="@+id/study_cumul_tv"
         android:layout_width="match_parent"

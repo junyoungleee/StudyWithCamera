@@ -16,4 +16,11 @@
     <color name="transGray">#CDEFEFEF</color>
     <color name="lightGray">#C4C4C4</color>
     <color name="darkWhite">#EFEFEF</color>
+
+
+    <color name="calendar_1">#FFCC80</color>
+    <color name="calendar_2">#FFB74D</color>
+    <color name="calendar_3">#FFA726</color>
+    <color name="calendar_4">#FF9800</color>
+    <color name="calendar_5">#FB8C00</color>
 </resources>

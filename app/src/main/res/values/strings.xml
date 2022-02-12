@@ -7,13 +7,28 @@
     <!-- fragment_statistic -->
     <string name="statistic_day_title1">오늘의 공부 시간</string>
     <string name="statistic_day_title2">어제의 공부 시간</string>
+    <string name="statistic_day_me">어제의 나</string>
     <string name="statistic_day_title3">오늘의 끈기 그래프</string>
+
+    <string name="statistic_week_title1">이번 주의 공부 시간</string>
+    <string name="statistic_week_title2">지난 주의 공부 시간</string>
+    <string name="statistic_week_me">지난 주의 나</string>
+
+    <string name="statistic_month_title1">이번 달의 공부 시간</string>
+    <string name="statistic_month_title2">지난 달의 공부 시간</string>
+    <string name="statistic_month_me">지난 달의 나</string>
+
     <string name="statistic_graph_less">적게 공부했어요</string>
-    <string name="statistic_graph_same">같은 시간 공부했어요</string>
+    <string name="statistic_graph_same">공부했어요</string>
+    <string name="statistic_graph_same_time">같은 시간</string>
     <string name="statistic_graph_more">많이 공부했어요</string>
 
     <string name="statistic_graph_middle_moreless">보다</string>
     <string name="statistic_graph_middle_same">랑</string>
+
+
+
+
 
     <string name="title_activity_drawer">DrawerActivity</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>

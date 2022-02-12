@@ -16,16 +16,16 @@ import kotlinx.coroutines.launch
 abstract class StudyDatabase: RoomDatabase() {
     abstract fun studyDao(): StudyDAO
 
-    private class StudyDatabaseCallback(private val scope: CoroutineScope) : RoomDatabase.Callback() {
-        override fun onCreate(db: SupportSQLiteDatabase) {
-            super.onCreate(db)
-            INSTANCE?.let { database ->
-                scope.launch {
-                    var studyDao = database.studyDao()
-                }
-            }
-        }
-    }
+//    private class StudyDatabaseCallback(private val scope: CoroutineScope) : RoomDatabase.Callback() {
+//        override fun onCreate(db: SupportSQLiteDatabase) {
+//            super.onCreate(db)
+//            INSTANCE?.let { database ->
+//                scope.launch {
+//                    var studyDao = database.studyDao()
+//                }
+//            }
+//        }
+//    }
 
     companion object {
         private var INSTANCE: StudyDatabase? = null
@@ -36,8 +36,7 @@ abstract class StudyDatabase: RoomDatabase() {
                     context.applicationContext,
                     StudyDatabase::class.java,
                     "study-database"
-                ).addCallback(StudyDatabaseCallback(scope))
-                    .build()
+                ).build()
                 INSTANCE = instance
                 instance
             }

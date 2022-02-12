@@ -53,13 +53,6 @@ class StatisticDayFragment : Fragment() {
     ): View? {
         var view = inflater.inflate(R.layout.fragment_statistic_day, container, false)
 
-        todayTV = view.findViewById(R.id.statistic_today_tv)
-        beforeTV = view.findViewById(R.id.statistic_before_tv)
-        beforeGapTV = view.findViewById(R.id.statistic_before_gap_tv)
-        dayMiddleTV = view.findViewById(R.id.statistic_day_middle)
-        dayGapConTV = view.findViewById(R.id.statistic_day_context_tv)
-        setTodayStatistic()
-
         uid = SWCapplication.pref.getUid("uid")
 
 //        serverVM = ViewModelProvider(this).get(ServerViewModel::class.java) // Test
@@ -72,33 +65,7 @@ class StatisticDayFragment : Fragment() {
         return view
     }
 
-    // 시간 세팅 메서드
-    private fun setTodayStatistic() {
-        var cSec = SWCapplication.pref.getPrefTime("cTime")
-        todayTV.text = clockFormat.calSecToString(cSec)
 
-        var avgSec = 0 // DB에서 가져와야 할 값
-        beforeTV.text = clockFormat.calSecToString(avgSec)
-
-        var gap = cSec - avgSec
-        if (gap > 0) {
-            // 현재 누적 공부시간이 더 많은 경우
-            beforeGapTV.text = clockFormat.calSecToKorean(gap)
-            dayMiddleTV.text = getString(R.string.statistic_graph_middle_moreless)
-            dayGapConTV.text = getString(R.string.statistic_graph_more)
-        } else if (gap == 0) {
-            // 현재 누적 시간과 이달 평균 시간이 같은 경우
-            beforeGapTV.text = ""
-            dayMiddleTV.text = getString(R.string.statistic_graph_middle_same)
-            dayGapConTV.text = getString(R.string.statistic_graph_same)
-        } else {
-            // 이달 평균 시간이 더 많은 경우
-            gap = Math.abs(gap)
-            beforeGapTV.text = clockFormat.calSecToKorean(gap)
-            dayMiddleTV.text = getString(R.string.statistic_graph_middle_moreless)
-            dayGapConTV.text = getString(R.string.statistic_graph_less)
-        }
-    }
 
     // 차트 데이터 초기화 메서드
     private fun initChartData() {

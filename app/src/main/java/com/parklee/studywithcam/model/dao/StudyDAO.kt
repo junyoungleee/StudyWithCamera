@@ -1,10 +1,7 @@
 package com.parklee.studywithcam.model.dao
 
 import androidx.lifecycle.LiveData
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.Query
-import androidx.room.Update
+import androidx.room.*
 import com.parklee.studywithcam.model.entity.DailyStudy
 import com.parklee.studywithcam.model.entity.Disturb
 import com.parklee.studywithcam.model.entity.Study
@@ -13,7 +10,7 @@ import com.parklee.studywithcam.model.entity.Study
 interface StudyDAO{
     // INSERT --------------------------------------------------------------------
     // 하루에 대한 누적 공부시간 → 시간 초기화시 Time=0으로 삽입
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertDayStudy(dailyStudy: DailyStudy)
     // 공부 구간
     @Insert
@@ -22,10 +19,6 @@ interface StudyDAO{
     @Insert
     suspend fun insertDisturbSection(disturbSection: Disturb)
 
-    // UPDATE --------------------------------------------------------------------
-    // 공부 구간 insert 시, 하루 누적 공부시간 update
-    @Update
-    suspend fun updateDayStudy(dailyStudy: DailyStudy)
 
 //    // QUERY ---------------------------------------------------------------------
 //    // 캘린더 데이터 받아오는 쿼리

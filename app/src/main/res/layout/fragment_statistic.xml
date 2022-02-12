@@ -1,83 +1,194 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     tools:context=".view.ui.main.StatisticFragment">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/statistic_toolbar"
-        android:layout_marginTop="10dp"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp">
+
         <TextView
+            style="@style/toolbar_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="리포트"
-            style="@style/toolbar_text"/>
+            android:text="리포트" />
     </androidx.appcompat.widget.Toolbar>
 
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:overScrollMode="never">
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
-            <CalendarView
+
+            <com.prolificinteractive.materialcalendarview.MaterialCalendarView
                 android:id="@+id/calendar_view"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="15dp"/>
+                android:layout_marginRight="20dp"
+                android:layout_marginLeft="20dp"
+                app:mcv_selectionColor="@color/mainOrange"
+                app:mcv_selectionMode="single" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
                 android:background="@drawable/statistic_fragment_background"
                 android:elevation="20dp"
+                android:orientation="vertical"
                 android:paddingLeft="25dp"
                 android:paddingRight="25dp"
                 android:paddingBottom="20dp">
+
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:paddingTop="20dp"
                     android:paddingBottom="10dp">
+
                     <TextView
-                        android:id="@+id/statistic_day_btn_tv"
-                        android:text="일간"
-                        style="@style/statistic_fragment_button"/>
+                        android:id="@+id/day_button"
+                        style="@style/statistic_fragment_button"
+                        android:text="일간" />
+
                     <TextView
-                        android:id="@+id/statistic_week_btn_tv"
-                        android:text="주간"
-                        style="@style/statistic_fragment_button"/>
+                        android:id="@+id/week_button"
+                        style="@style/statistic_fragment_button"
+                        android:text="주간" />
+
                     <TextView
-                        android:id="@+id/statistic_month_btn_tv"
-                        android:text="월간"
-                        style="@style/statistic_fragment_button"/>
-               </LinearLayout>
+                        android:id="@+id/month_button"
+                        style="@style/statistic_fragment_button"
+                        android:text="월간" />
+                </LinearLayout>
+
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="10dp"
-                    android:layout_marginLeft="5dp">
+                    android:layout_marginLeft="5dp"
+                    android:layout_marginBottom="10dp">
+
                     <View
                         android:layout_width="4dp"
                         android:layout_height="match_parent"
-                        android:background="@color/mainOrange"
-                        android:layout_marginRight="5dp"/>
+                        android:layout_marginRight="5dp"
+                        android:background="@color/mainOrange" />
+
                     <TextView
                         android:id="@+id/statistic_selected_date_tv"
+                        style="@style/subtitle_text"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="00월 00일"
-                        style="@style/subtitle_text"/>
+                        android:text="00월 00일" />
                 </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:clipChildren="false"
+                    android:clipToPadding="false"
+                    android:orientation="vertical"
+                    android:padding="5dp">
+
+                    <TextView
+                        android:id="@+id/time_title"
+                        style="@style/subtitle_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/statistic_day_title1" />
+
+                    <TextView
+                        android:id="@+id/time_now"
+                        style="@style/timer_text_alert"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:layout_marginBottom="10dp"
+                        android:background="@drawable/text_round_background"
+                        android:elevation="5dp"
+                        android:gravity="center"
+                        android:paddingTop="15dp"
+                        android:paddingBottom="15dp"
+                        android:text="00 : 00 : 00" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="10dp"
+                        android:background="@drawable/text_round_background"
+                        android:backgroundTint="@color/darkWhite"
+                        android:orientation="horizontal"
+                        android:paddingLeft="20dp"
+                        android:paddingTop="10dp"
+                        android:paddingRight="20dp"
+                        android:paddingBottom="10dp">
+
+                        <TextView
+                            android:id="@+id/time_sub_title"
+                            style="@style/context_text"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/statistic_day_title2" />
+
+                        <TextView
+                            android:id="@+id/time_before"
+                            style="@style/context_text"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="right"
+                            android:text="00 : 00 : 00" />
+                    </LinearLayout>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginTop="5dp"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/time_compared_me"
+                        style="@style/mini_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="어제의 나" />
+
+                    <TextView
+                        android:id="@+id/time_compared_text1"
+                        style="@style/mini_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingRight="5dp"
+                        android:text="보다" />
+
+                    <TextView
+                        android:id="@+id/time_compared"
+                        style="@style/mini_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginRight="5dp"
+                        android:text="1시간 59분" />
+
+                    <TextView
+                        android:id="@+id/time_compared_text2"
+                        style="@style/mini_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/statistic_graph_more" />
+                </LinearLayout>
+
                 <FrameLayout
                     android:id="@+id/statistic_frame_layout"
                     android:layout_width="match_parent"
@@ -85,7 +196,6 @@
             </LinearLayout>
         </LinearLayout>
     </ScrollView>
-
 
 
 </LinearLayout>

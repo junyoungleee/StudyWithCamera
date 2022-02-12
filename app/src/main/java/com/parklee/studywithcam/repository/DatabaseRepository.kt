@@ -34,9 +34,6 @@ class DatabaseRepository(private val studyDao: StudyDAO) {
         studyDao.insertDisturbSection(disturbSection)
     }
 
-    suspend fun updateDayStudy(dailyStudy: DailyStudy) {
-        studyDao.updateDayStudy(dailyStudy)
-    }
 
 
 //    // 리포트 페이지 ------------------------------------------------------------
