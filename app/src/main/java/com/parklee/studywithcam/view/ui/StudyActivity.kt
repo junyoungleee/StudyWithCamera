@@ -2,14 +2,17 @@ package com.parklee.studywithcam.view.ui
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.Toast
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.Preview
+import androidx.camera.core.impl.ImageAnalysisConfig
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -19,13 +22,13 @@ import com.parklee.studywithcam.SWCapplication
 import com.parklee.studywithcam.databinding.ActivityStudyBinding
 import com.parklee.studywithcam.model.entity.Disturb
 import com.parklee.studywithcam.model.entity.Study
+import com.parklee.studywithcam.repository.DatabaseRepository
 import com.parklee.studywithcam.repository.NetworkRepository
 import com.parklee.studywithcam.view.format.ClockFormat
 import com.parklee.studywithcam.viewmodel.ServerViewModel
 import com.parklee.studywithcam.viewmodel.ServerViewModelFactory
 import com.parklee.studywithcam.viewmodel.TimerViewModel
-import com.parklee.studywithcam.vision.DrowsinessAnalyzer
-import com.parklee.studywithcam.vision.VisionOverlay
+import com.parklee.studywithcam.vision.*
 import java.util.concurrent.Executors
 
 class StudyActivity : AppCompatActivity() {
@@ -36,9 +39,13 @@ class StudyActivity : AppCompatActivity() {
 
     // Camera + Model
     private var cameraExecutor = Executors.newSingleThreadExecutor()
-    private lateinit var overlay: VisionOverlay
     private var clockFormat = ClockFormat()
-    private lateinit var drowsinessAnalyzer: DrowsinessAnalyzer
+
+    private lateinit var drowsinessAnalyzer: FaceAnalyzer
+    private lateinit var understandingAnalyzer: FaceAnalyzer
+
+    private var isPreviewOn: Boolean = true  // 카메라 프리뷰
+    private var lastAnalyzedTimestamp = 0L
 
     // preference
     private lateinit var uid: String
@@ -72,42 +79,28 @@ class StudyActivity : AppCompatActivity() {
         timerVM = ViewModelProvider(this).get(TimerViewModel::class.java)
         timerVM.startTimer(init)  // 현재 타이머: 0, 누적 타이머: init
 
-        timerVM.nTime.observe(this, Observer { time ->
-            binding.studyNowTv.text = clockFormat.calSecToString(time) })
-        timerVM.cTime.observe(this, Observer { time ->
-            binding.studyCumulTv.text = clockFormat.calSecToString(time) })
-
-        drowsinessAnalyzer = DrowsinessAnalyzer(this)
+        timerVM.nTime.observe(this, Observer { time -> binding.studyNowTv.text = clockFormat.calSecToString(time) })
+        timerVM.cTime.observe(this, Observer { time -> binding.studyCumulTv.text = clockFormat.calSecToString(time) })
 
 
-
-//        serverVM.getCalendarData(uid, 1)
-//        serverVM.cal_data.observe(this, Observer {
-//            Log.d("Response_1", it.toString())
-//        })
-//
-//        serverVM.getDailyGraphData(uid, "2021-11-21")
-//        serverVM.graph_data.observe(this, Observer {
-//            Log.d("Response_2", it.toString())
-//        })
-
-
+        // -----------------------------------------------------------------------------------------
         // 카메라
-
         cameraExecutor = Executors.newSingleThreadExecutor()
         if (allPermissionsGranted()) {
-            startCamera()
+            startCamera(isPreviewOn)
         } else {
             ActivityCompat.requestPermissions(
                 this, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS)
         }
+        binding.cameraButton.isSelected = true
+        setCameraPreviewButton()
+
+        // 분석 모델
+        drowsinessAnalyzer = FaceAnalyzer(this, AiModel.DROWSINESS)
+        understandingAnalyzer = FaceAnalyzer(this, AiModel.UNDERSTANDING)
 
         // 돌아가기
         stopTimerButtonAction()
-    }
-
-    private fun startNotFocus() {
-
     }
 
     //----------------------------------------------------------------------------------
@@ -116,7 +109,7 @@ class StudyActivity : AppCompatActivity() {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == REQUEST_CODE_PERMISSIONS) {
             if (allPermissionsGranted()) {
-                startCamera()
+                startCamera(isPreviewOn)
             } else {
                 Toast.makeText(this, "카메라를 사용할 수 있는 권한이 없습니다", Toast.LENGTH_SHORT).show()
                 finish()
@@ -131,7 +124,7 @@ class StudyActivity : AppCompatActivity() {
 
     // 카메라 실행
     @SuppressLint("UnsafeExperimentalUsageError")
-    private fun startCamera() {
+    private fun startCamera(isPreviewOn: Boolean) {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
 
         cameraProviderFuture.addListener(Runnable {
@@ -139,17 +132,21 @@ class StudyActivity : AppCompatActivity() {
             val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA // default : 정면 카메라
 
             // CameraX preview(미리보기)
-            val preview = Preview.Builder().build().also {
+            val preview = Preview.Builder()
+                .build()
+                .also {
                 it.setSurfaceProvider(binding.studyPreview.surfaceProvider)
             }
 
+            // CameraX analyze(분석하기)
             val analysisUseCase = ImageAnalysis.Builder()
                 .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                 .build()
                 .also {
                     it.setAnalyzer(
                         cameraExecutor, ImageAnalysis.Analyzer { imageProxy ->
-                            var result = drowsinessAnalyzer.classifyFace(imageProxy)
+//                            var result = drowsinessAnalyzer.classifyFace(imageProxy)
+                            var result = understandingAnalyzer.classifyFace(imageProxy)
                             runOnUiThread {
                                 binding.studyResultTv.text = result
                             }
@@ -160,11 +157,34 @@ class StudyActivity : AppCompatActivity() {
 
             try {
                 cameraProvider.unbindAll()  // rebinding 전 모든 케이스 unbind
-                cameraProvider.bindToLifecycle(this, cameraSelector, preview, analysisUseCase)  // bind use case to camera
+                // bind use case to camera
+                when(isPreviewOn) {
+                    true ->  cameraProvider.bindToLifecycle(this, cameraSelector, preview, analysisUseCase)
+                    false -> cameraProvider.bindToLifecycle(this, cameraSelector, analysisUseCase)
+                }
             } catch (exc: Exception) {
                 Log.e("Camera", "Use case binding failed", exc)
             }
         }, ContextCompat.getMainExecutor(this))
+    }
+
+    // 카메라 프리뷰 온오프 버튼 세팅
+    private fun setCameraPreviewButton() {
+        binding.cameraButton.setOnClickListener {
+            if(isPreviewOn) {
+                // 프리뷰 OFF
+                isPreviewOn = false
+                binding.cameraButton.isSelected = false
+                binding.studyPreview.visibility = View.GONE
+
+            } else {
+                // 프리뷰 ON
+                isPreviewOn = true
+                binding.cameraButton.isSelected = true
+                binding.studyPreview.visibility = View.VISIBLE
+            }
+            startCamera(isPreviewOn)
+        }
     }
 
 
@@ -185,9 +205,19 @@ class StudyActivity : AppCompatActivity() {
             SWCapplication.pref.setPrefTime("cTime", timerVM.cTime.value!!.toInt())
             SWCapplication.pref.setPrefTime("nTime", timerVM.nTime.value!!.toInt())
 
+            var saveIntent = Intent()
+            val studyNowTime = timerVM.nTime.value!!.toInt()
+            val studyCumTime = timerVM.cTime.value!!.toInt()
+
+            saveIntent.putExtra("nTime", studyNowTime)
+            saveIntent.putExtra("cTime", studyCumTime)
+
+            setResult(RESULT_OK, saveIntent)
             finish()
         }
     }
+
+
 
 
 

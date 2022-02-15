@@ -7,27 +7,114 @@
     android:layout_height="match_parent"
     tools:context=".view.ui.StudyActivity">
 
-    <TextView
-        android:id="@+id/study_cumul_tv"
-        android:layout_width="match_parent"
+    <LinearLayout
+        android:id="@+id/linear_cumul"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:gravity="center_horizontal"
-        android:layout_marginTop="30dp"
-        android:text="00 : 00 : 00"
-        style="@style/subtitle_text_alert"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/linear_now"
+        app:layout_constraintRight_toRightOf="@id/study_preview_closed"
+        app:layout_constraintLeft_toLeftOf="@id/study_preview_closed"
+        android:background="@drawable/text_round_background"
+        android:elevation="5dp"
+        android:orientation="horizontal"
+        android:layout_gravity="center_vertical"
+        android:layout_marginBottom="10dp"
+        app:layout_constraintVertical_chainStyle="packed">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="누적 공부 시간"
+            android:layout_marginLeft="30dp"
+            android:gravity="center_vertical"
+            style="@style/subtitle_text"
+            android:textStyle="normal"/>
+        <TextView
+            android:id="@+id/study_cumul_tv"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="00 : 00 : 00"
+            android:textAlignment="center"
+            android:padding="15dp"
+            style="@style/timer_text"/>
+
+    </LinearLayout>
+    <LinearLayout
+        android:id="@+id/linear_now"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/linear_cumul"
+        app:layout_constraintRight_toRightOf="@id/study_preview_closed"
+        app:layout_constraintLeft_toLeftOf="@id/study_preview_closed"
+        app:layout_constraintBottom_toTopOf="@id/study_preview_closed"
+        android:background="@drawable/text_round_background"
+        android:elevation="5dp"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="현재 공부 시간"
+            android:layout_marginLeft="30dp"
+            android:gravity="center_vertical"
+            style="@style/subtitle_text"
+            android:textStyle="normal"/>
+        <TextView
+            android:id="@+id/study_now_tv"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="00 : 00 : 00"
+            android:textAlignment="center"
+            android:padding="15dp"
+            style="@style/timer_text"/>
+    </LinearLayout>
+
+    <ImageButton
+        android:id="@+id/camera_button"
+        android:layout_width="45dp"
+        android:layout_height="45dp"
+        android:background="@drawable/button_camera_onoff"
+        app:layout_constraintBottom_toTopOf="@id/study_preview_closed"
+        app:layout_constraintRight_toRightOf="@id/study_preview_closed"
+        android:layout_marginBottom="-20dp"
+        android:layout_marginRight="20dp"
+        android:elevation="20dp"/>
+
+    <androidx.camera.view.PreviewView
+        android:id="@+id/study_preview"
+        android:layout_width="350dp"
+        android:layout_height="350dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"/>
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:elevation="10dp"
+        android:outlineProvider="none"/>
 
-    <TextView
-        android:id="@+id/study_now_tv"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="00 : 00 : 00"
-        style="@style/timer_text"
-        app:layout_constraintTop_toBottomOf="@id/study_cumul_tv"
+    <LinearLayout
+        android:id="@+id/study_preview_closed"
+        android:layout_width="356dp"
+        android:layout_height="356dp"
+        android:background="@drawable/preview_orange_stroke"
+        android:orientation="vertical"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"/>
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:gravity="center">
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="70dp"
+            android:src="@drawable/camera_running"
+            app:tint="@color/darkGray"/>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="분석중..."
+            android:textAlignment="center"
+            style="@style/context_text"
+            android:textColor="@color/darkGray"
+            android:layout_marginTop="10dp"/>
+    </LinearLayout>
 
     <TextView
         android:id="@+id/study_result_tv"
@@ -36,19 +123,9 @@
         android:layout_marginLeft="80dp"
         android:text="0:\n1:\n2:\n3:"
         style="@style/context_text"
-        app:layout_constraintTop_toBottomOf="@id/study_now_tv"
+        app:layout_constraintTop_toBottomOf="@id/study_preview_closed"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/study_preview"/>
-
-    <androidx.camera.view.PreviewView
-        android:id="@+id/study_preview"
-        android:layout_width="400dp"
-        android:layout_height="400dp"
-        app:layout_constraintTop_toBottomOf="@id/study_now_tv"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"/>
+        app:layout_constraintLeft_toLeftOf="parent"/>
 
     <ImageButton
         android:id="@+id/study_timer_button"
