@@ -81,6 +81,9 @@ class FaceAnalyzer {
         // 1초마다 실행
         val currentTimestamp = System.currentTimeMillis()
         if (currentTimestamp - lastAnalyzedTimestamp >= TimeUnit.SECONDS.toMillis(1)) {
+            Log.d("실행 : 현재", "$currentTimestamp")
+            Log.d("실행 : 이전", "$lastAnalyzedTimestamp")
+
             var img: Image = image.image!!
             var bitmap: Bitmap = imageProcessing.toBitmap(img)
             var width = bitmap.width
@@ -117,12 +120,13 @@ class FaceAnalyzer {
                 var labels = TensorLabel(associatedAxisLabels, resultProcessor.process(resultBuffer))
                 var floatMap: Map<String, Float> = labels.mapWithFloatValue
 
-                result = imageProcessing.makeResult(floatMap)
+                var allResult = imageProcessing.makeResult(floatMap)
+                Log.d("전체결과 : ", "$allResult")
+                result = imageProcessing.finalResult(floatMap)  // 실제 결과
             }
-
-
             lastAnalyzedTimestamp = currentTimestamp
         }
+
         return result
     }
 }

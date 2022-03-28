@@ -1,6 +1,7 @@
 package com.parklee.studywithcam.view.ui
 
 import android.content.Intent
+import android.graphics.Point
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -15,6 +16,7 @@ import com.google.firebase.ml.modeldownloader.CustomModelDownloadConditions
 import com.google.firebase.ml.modeldownloader.DownloadType
 import com.google.firebase.ml.modeldownloader.FirebaseModelDownloader
 import com.parklee.studywithcam.R
+import com.parklee.studywithcam.SWCapplication
 import com.parklee.studywithcam.databinding.ActivityMainBinding
 import com.parklee.studywithcam.view.ui.main.GroupFragment
 import com.parklee.studywithcam.view.ui.main.HomeFragment
@@ -23,11 +25,13 @@ import com.parklee.studywithcam.viewmodel.ServerViewModel
 import org.tensorflow.lite.Interpreter
 import java.util.*
 import kotlin.collections.HashMap
+import kotlin.properties.Delegates
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var serverVM: ServerViewModel  // Test
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,18 +41,21 @@ class MainActivity : AppCompatActivity() {
         initNavigationBar()
         initStartButton()
 
+        val display = windowManager.defaultDisplay
+        val size = Point()
+        display.getRealSize(size)
+        val width = size.x
+        val height = size.y
+
+        SWCapplication.pref.setWidth("width", width)
+        SWCapplication.pref.setHeight("height", height)
+
         modelDownLoad()
     }
 
     // 시작 버튼 초기화
     private fun initStartButton() {
         binding.timerButton.setOnClickListener {
-
-            val hash = HashMap<String, Any>()
-            hash.put("name", "lee")
-            hash.put("address", "seoul")
-            hash.put("age", 23)
-//            serverVM.postDummy(hash)
 
             val studyIntent = Intent(applicationContext, StudyActivity::class.java)
             startActivity(studyIntent)
@@ -90,26 +97,55 @@ class MainActivity : AppCompatActivity() {
         binding.loadingAnimation.visibility = View.VISIBLE
         binding.timerButton.isClickable = false
 
+        var drowsiness = false
+        var understanding = false
+
         val conditions = CustomModelDownloadConditions.Builder()
             .requireWifi()
             .build()
 
+        // 졸음 측정 AI 모델 다운로드 & 업데이트
         FirebaseModelDownloader.getInstance()
             .getModel("Drowsiness-Detector", DownloadType.LOCAL_MODEL_UPDATE_IN_BACKGROUND, conditions)
             .addOnCompleteListener {
-                // Download complete. Depending on your app, you could enable the ML
-                // feature, or switch from the local model to the remote model, etc.
-                binding.loadingAnimation.visibility = View.GONE
-                binding.timerButton.isClickable = true
+                drowsiness = true
+                if (understanding) {
+                    Log.d("지금 상황1", "$drowsiness & $understanding")
+                    binding.loadingAnimation.visibility = View.GONE
+                    binding.timerButton.isClickable = true
+                }
             }
             .addOnSuccessListener { model ->
+                drowsiness = true
                 val modelFile = model?.file
                 if (modelFile != null) {
                     Log.d("model path", model!!.file!!.path.toString())
                 }
             }
             .addOnFailureListener {
-                Toast.makeText(this, "AI 업그레이드 실패 : $it", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "졸음 측정 AI 업그레이드 실패 : $it", Toast.LENGTH_SHORT).show()
+            }
+
+        // 이해도 측정 AI 모델 다운로드 & 업데이트
+        FirebaseModelDownloader.getInstance()
+            .getModel("Understanding-Detector", DownloadType.LOCAL_MODEL_UPDATE_IN_BACKGROUND, conditions)
+            .addOnCompleteListener {
+                understanding = true
+                if (drowsiness) {
+                    Log.d("지금 상황2", "$drowsiness & $understanding")
+                    binding.loadingAnimation.visibility = View.GONE
+                    binding.timerButton.isClickable = true
+                }
+            }
+            .addOnSuccessListener { model ->
+                understanding = true
+                val modelFile = model?.file
+                if (modelFile != null) {
+                    Log.d("model path", model!!.file!!.path.toString())
+                }
+            }
+            .addOnFailureListener {
+                Toast.makeText(this, "이해도 측정 AI 업그레이드 실패 : $it", Toast.LENGTH_SHORT).show()
             }
     }
 

@@ -13,7 +13,7 @@ class SWCapplication : Application() {
     val applicationScope = CoroutineScope(SupervisorJob())
 
     val database by lazy { StudyDatabase.getDatabase(this, applicationScope)}
-    val repository by lazy { DatabaseRepository(database!!.studyDao())}
+    val dbRepository by lazy { DatabaseRepository(database!!.studyDao())}
 
     companion object {
         lateinit var pref: PreferenceUtil

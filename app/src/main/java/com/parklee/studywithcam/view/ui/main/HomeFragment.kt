@@ -1,5 +1,7 @@
 package com.parklee.studywithcam.view.ui.main
 
+import android.app.Activity.RESULT_OK
+import android.app.Instrumentation
 import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -8,11 +10,16 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.TextView
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import com.google.firebase.auth.FirebaseAuth
 import com.parklee.studywithcam.R
 import com.parklee.studywithcam.SWCapplication
+import com.parklee.studywithcam.model.entity.DailyStudy
+import com.parklee.studywithcam.repository.DatabaseRepository
 import com.parklee.studywithcam.view.format.ClockFormat
 import com.parklee.studywithcam.view.ui.MenuActivity
+import java.time.LocalDate
 
 class HomeFragment : Fragment() {
 
@@ -22,6 +29,10 @@ class HomeFragment : Fragment() {
 
     lateinit var auth: FirebaseAuth
     lateinit var menuButton: ImageButton
+
+    private lateinit var getResult: ActivityResultLauncher<Intent>
+
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -39,6 +50,15 @@ class HomeFragment : Fragment() {
 
         auth = FirebaseAuth.getInstance()
 
+        getResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            val nTime = it.data!!.getIntExtra("nTime", 0)
+            val cTime = it.data!!.getIntExtra("cTime", 0)
+
+            val todayStudy = DailyStudy(LocalDate.now().toString(), nTime)
+            // DB 저장
+
+        }
+
         return view
     }
 
@@ -53,3 +73,5 @@ class HomeFragment : Fragment() {
     }
 
 }
+
+

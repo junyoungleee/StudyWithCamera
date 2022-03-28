@@ -4,11 +4,14 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.view.ViewGroup
 import android.widget.Toast
+import androidx.camera.core.AspectRatio
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.Preview
@@ -47,6 +50,8 @@ class StudyActivity : AppCompatActivity() {
     private var isPreviewOn: Boolean = true  // 카메라 프리뷰
     private var lastAnalyzedTimestamp = 0L
 
+    private lateinit var overlay: VisionOverlay
+
     // preference
     private lateinit var uid: String
 
@@ -61,7 +66,8 @@ class StudyActivity : AppCompatActivity() {
     lateinit var viewModelFactory: ServerViewModelFactory
 
     // check StudyX
-    private var notFocusCnt: Int = 0
+    private lateinit var studys: List<Study>
+    private lateinit var disturbs: List<Disturb>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -95,12 +101,23 @@ class StudyActivity : AppCompatActivity() {
         binding.cameraButton.isSelected = true
         setCameraPreviewButton()
 
+        overlay = VisionOverlay(this)
+        val layoutOverlay = ViewGroup.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.MATCH_PARENT
+        )
+        this.addContentView(overlay, layoutOverlay)
+
         // 분석 모델
         drowsinessAnalyzer = FaceAnalyzer(this, AiModel.DROWSINESS)
         understandingAnalyzer = FaceAnalyzer(this, AiModel.UNDERSTANDING)
 
         // 돌아가기
         stopTimerButtonAction()
+    }
+
+    override fun onResume() {
+        super.onResume()
     }
 
     //----------------------------------------------------------------------------------
@@ -122,6 +139,7 @@ class StudyActivity : AppCompatActivity() {
             baseContext, it) == PackageManager.PERMISSION_GRANTED
     }
 
+
     // 카메라 실행
     @SuppressLint("UnsafeExperimentalUsageError")
     private fun startCamera(isPreviewOn: Boolean) {
@@ -129,10 +147,11 @@ class StudyActivity : AppCompatActivity() {
 
         cameraProviderFuture.addListener(Runnable {
             val cameraProvider: ProcessCameraProvider = cameraProviderFuture.get()  // lifecycle & 카메라 bind
-            val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA // default : 정면 카메라
+            val cameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA // default : 정면 카메라
 
             // CameraX preview(미리보기)
             val preview = Preview.Builder()
+                .setTargetAspectRatio(AspectRatio.RATIO_4_3)
                 .build()
                 .also {
                 it.setSurfaceProvider(binding.studyPreview.surfaceProvider)
@@ -144,14 +163,12 @@ class StudyActivity : AppCompatActivity() {
                 .build()
                 .also {
                     it.setAnalyzer(
-                        cameraExecutor, ImageAnalysis.Analyzer { imageProxy ->
+//                        cameraExecutor, ImageAnalysis.Analyzer { imageProxy ->
 //                            var result = drowsinessAnalyzer.classifyFace(imageProxy)
-                            var result = understandingAnalyzer.classifyFace(imageProxy)
-                            runOnUiThread {
-                                binding.studyResultTv.text = result
-                            }
-                            imageProxy.close()
-                        }
+//                            result = understandingAnalyzer.classifyFace(imageProxy)
+//                            imageProxy.close()
+//                        }
+                        cameraExecutor, FaceDetectAnalyzer(lifecycle, overlay)
                     )
                 }
 
@@ -218,8 +235,10 @@ class StudyActivity : AppCompatActivity() {
     }
 
 
-
-
+    override fun onBackPressed() {
+//        super.onBackPressed()
+        Toast.makeText(this, "하단의 학습 종료 버튼을 눌러 종료해주세요", Toast.LENGTH_SHORT).show()
+    }
 
 }
 

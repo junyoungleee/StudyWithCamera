@@ -26,4 +26,20 @@ class PreferenceUtil(context: Context) {
         prefs.edit().putString(key, value).apply()
     }
 
+    fun getWidth(key: String): Int {
+        return prefs.getInt(key, 0).toInt()
+    }
+
+    fun setWidth(key: String, value: Int) {
+        prefs.edit().putInt(key, value).apply()
+    }
+
+    fun getHeight(key: String): Int {
+        return prefs.getInt(key, 0).toInt()
+    }
+
+    fun setHeight(key: String, value: Int) {
+        prefs.edit().putInt(key, value).apply()
+    }
+
 }
