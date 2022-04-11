@@ -33,6 +33,7 @@ import com.parklee.studywithcam.viewmodel.ServerViewModelFactory
 import com.parklee.studywithcam.viewmodel.TimerViewModel
 import com.parklee.studywithcam.vision.*
 import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 
 class StudyActivity : AppCompatActivity() {
 
@@ -46,6 +47,7 @@ class StudyActivity : AppCompatActivity() {
 
     private lateinit var drowsinessAnalyzer: FaceAnalyzer
     private lateinit var understandingAnalyzer: FaceAnalyzer
+    private lateinit var faceDetectAnalyzer: FaceDetectAnalyzer
 
     private var isPreviewOn: Boolean = true  // 카메라 프리뷰
     private var lastAnalyzedTimestamp = 0L
@@ -111,6 +113,8 @@ class StudyActivity : AppCompatActivity() {
         // 분석 모델
         drowsinessAnalyzer = FaceAnalyzer(this, AiModel.DROWSINESS)
         understandingAnalyzer = FaceAnalyzer(this, AiModel.UNDERSTANDING)
+//        faceDetectAnalyzer = FaceDetectAnalyzer(lifecycle, overlay)
+        faceDetectAnalyzer = FaceDetectAnalyzer(lifecycle)
 
         // 돌아가기
         stopTimerButtonAction()
@@ -141,7 +145,7 @@ class StudyActivity : AppCompatActivity() {
 
 
     // 카메라 실행
-    @SuppressLint("UnsafeExperimentalUsageError")
+    @SuppressLint("UnsafeExperimentalUsageError", "UnsafeOptInUsageError")
     private fun startCamera(isPreviewOn: Boolean) {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
 
@@ -157,6 +161,7 @@ class StudyActivity : AppCompatActivity() {
                 it.setSurfaceProvider(binding.studyPreview.surfaceProvider)
             }
 
+            var lastAnalyzedTimestamp = 0L
             // CameraX analyze(분석하기)
             val analysisUseCase = ImageAnalysis.Builder()
                 .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
@@ -168,7 +173,29 @@ class StudyActivity : AppCompatActivity() {
 //                            result = understandingAnalyzer.classifyFace(imageProxy)
 //                            imageProxy.close()
 //                        }
-                        cameraExecutor, FaceDetectAnalyzer(lifecycle, overlay)
+//                        cameraExecutor, FaceDetectAnalyzer(lifecycle, overlay)
+
+                        cameraExecutor, ImageAnalysis.Analyzer { imageProxy ->
+
+                            var p = faceDetectAnalyzer.analyze(imageProxy)
+//
+//                            val currentTimestamp = System.currentTimeMillis()
+//                            if (currentTimestamp - lastAnalyzedTimestamp >= TimeUnit.SECONDS.toMillis(1)) {
+
+                                Log.d("face_activity_result", "$p")
+                                if (p.size != 0) {
+                                    var bitmap = FaceProcessing.cropImage(
+                                        imageProxy.image,
+                                        imageProxy.imageInfo.rotationDegrees.toFloat(), p[0], p[1], p[2]
+                                    )
+                                    runOnUiThread {
+                                        // 테스트용
+                                        binding.ivCropImage.setImageBitmap(bitmap)
+                                    }
+                                }
+//                                lastAnalyzedTimestamp = currentTimestamp
+//                            }
+                        }
                     )
                 }
 

@@ -6,9 +6,6 @@ import android.graphics.Bitmap
 import android.media.Image
 import android.util.Log
 import androidx.camera.core.ImageProxy
-import com.google.firebase.ml.common.modeldownload.FirebaseLocalModel
-import com.google.firebase.ml.common.modeldownload.FirebaseModelManager
-import com.google.firebase.ml.common.modeldownload.FirebaseRemoteModel
 import com.google.firebase.ml.modeldownloader.CustomModelDownloadConditions
 import com.google.firebase.ml.modeldownloader.DownloadType
 import com.google.firebase.ml.modeldownloader.FirebaseModelDownloader

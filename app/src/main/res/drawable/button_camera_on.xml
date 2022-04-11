@@ -3,7 +3,7 @@
     <item>
         <shape
             android:shape="oval">
-            <solid android:color="@color/white"/>
+            <solid android:color="#60ffffff"/>
             <stroke
                 android:color="@color/mainOrange"
                 android:width="3dp"/>
@@ -11,7 +11,7 @@
         </shape>
     </item>
     <item
-        android:drawable="@drawable/ic_lens_on"
+        android:drawable="@drawable/ic_person"
         android:left="5dp"
         android:bottom="5dp"
         android:right="5dp"
