@@ -7,7 +7,7 @@ import java.io.ByteArrayOutputStream
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
-class ImageProcessing {
+class ImageProcessing() {
 
     fun getImageRotation(image: ImageProxy): Int {
         val rotation = image.imageInfo.rotationDegrees

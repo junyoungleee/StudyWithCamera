@@ -12,6 +12,7 @@ import android.view.View
 import com.google.mlkit.vision.face.Face
 import com.google.mlkit.vision.face.FaceLandmark
 import com.parklee.studywithcam.SWCapplication
+import kotlin.math.abs
 
 
 class VisionOverlay @JvmOverloads constructor(
@@ -66,15 +67,17 @@ class VisionOverlay @JvmOverloads constructor(
 
     private fun drawOverlay(canvas: Canvas) {
 
+        val displayWidth = SWCapplication.pref.getWidth("width")
+        val displayHeight = SWCapplication.pref.getHeight("height")
+
         // 상태바를 제외한 전체 화면 / 프리뷰 사이즈(480*640)으로 나눈 비율
-        widthScaleFactor = width.toFloat() / previewWidth
-        heightScaleFactor = height.toFloat() / previewHeight
+        widthScaleFactor = displayWidth.toFloat() / previewWidth
+        heightScaleFactor = displayHeight.toFloat() / previewHeight
 
 //        Log.d("overlay_width", "${width} - ${previewWidth}")
 //        Log.d("overlay_height", "${height} - ${previewHeight}")
         for(face in faces)
         {
-//            drawFaceBorder(face, canvas)
             drawFaceContour(face,canvas)
             drawFaceLandmark(face,canvas)
         }

@@ -15,7 +15,13 @@ import com.google.mlkit.vision.face.Face
 import com.google.mlkit.vision.face.FaceDetection
 import com.google.mlkit.vision.face.FaceDetectorOptions
 
-class FaceDetectAnalyzer(lifecycle: Lifecycle, private val overlay: VisionOverlay): ImageAnalysis.Analyzer {
+/**
+ * MLkit FaceDetection
+ */
+class FaceDetectAnalyzer(lifecycle: Lifecycle) {
+
+    private lateinit var nowImageProxy : ImageProxy
+    private var result = arrayListOf<Int>()
 
     private val options = FaceDetectorOptions.Builder()
         .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_ACCURATE)
@@ -32,27 +38,33 @@ class FaceDetectAnalyzer(lifecycle: Lifecycle, private val overlay: VisionOverla
         lifecycle.addObserver(detector)
     }
 
-    override fun analyze(image: ImageProxy) {
-        overlay.setPreviewSize(Size(image.width,image.height))
-        Log.d("image_preview", "${image.width}, ${image.height}")
+    fun analyze(image: ImageProxy): ArrayList<Int> {
+//        overlay.setPreviewSize(Size(image.width,image.height))
         detectFaces(image)
+        return result
     }
 
     @SuppressLint("UnsafeOptInUsageError")
-    private fun detectFaces(imageProxy: ImageProxy) {
+    private fun detectFaces(imageProxy: ImageProxy){
         val image = InputImage.fromMediaImage(imageProxy.image as Image, imageProxy.imageInfo.rotationDegrees)
         detector.process(image)
-            .addOnSuccessListener(successListener)
+            .addOnSuccessListener { faces ->
+//                overlay.setFaces(faces)
+                result = FaceProcessing.getLongerEye(faces[0])
+                Log.d("face_result", "$result")
+
+            }
             .addOnFailureListener(failureListener)
             .addOnCompleteListener{
                 imageProxy.close()
             }
     }
 
+    @SuppressLint("UnsafeOptInUsageError")
     private val successListener = OnSuccessListener<List<Face>> { faces ->
         Log.d(TAG, "Number of face detected: " + faces.size)
-        overlay.setFaces(faces)
     }
+
     private val failureListener = OnFailureListener { e ->
         Log.e(TAG, "Face analysis failure.", e)
     }
@@ -61,3 +73,4 @@ class FaceDetectAnalyzer(lifecycle: Lifecycle, private val overlay: VisionOverla
         private const val TAG = "FaceAnalyzer"
     }
 }
+
