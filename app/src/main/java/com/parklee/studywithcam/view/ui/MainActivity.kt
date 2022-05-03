@@ -97,55 +97,25 @@ class MainActivity : AppCompatActivity() {
         binding.loadingAnimation.visibility = View.VISIBLE
         binding.timerButton.isClickable = false
 
-        var drowsiness = false
-        var understanding = false
-
         val conditions = CustomModelDownloadConditions.Builder()
             .requireWifi()
             .build()
 
-        // 졸음 측정 AI 모델 다운로드 & 업데이트
+        // 눈동자 위치 측정 AI 모델 다운로드 & 업데이트
         FirebaseModelDownloader.getInstance()
-            .getModel("Drowsiness-Detector", DownloadType.LOCAL_MODEL_UPDATE_IN_BACKGROUND, conditions)
+            .getModel("Gaze-Detector", DownloadType.LOCAL_MODEL_UPDATE_IN_BACKGROUND, conditions)
             .addOnCompleteListener {
-                drowsiness = true
-                if (understanding) {
-                    Log.d("지금 상황1", "$drowsiness & $understanding")
-                    binding.loadingAnimation.visibility = View.GONE
-                    binding.timerButton.isClickable = true
-                }
+                binding.loadingAnimation.visibility = View.GONE
+                binding.timerButton.isClickable = true
             }
             .addOnSuccessListener { model ->
-                drowsiness = true
                 val modelFile = model?.file
                 if (modelFile != null) {
                     Log.d("model path", model!!.file!!.path.toString())
                 }
             }
             .addOnFailureListener {
-                Toast.makeText(this, "졸음 측정 AI 업그레이드 실패 : $it", Toast.LENGTH_SHORT).show()
-            }
-
-        // 이해도 측정 AI 모델 다운로드 & 업데이트
-        FirebaseModelDownloader.getInstance()
-            .getModel("Understanding-Detector", DownloadType.LOCAL_MODEL_UPDATE_IN_BACKGROUND, conditions)
-            .addOnCompleteListener {
-                understanding = true
-                if (drowsiness) {
-                    Log.d("지금 상황2", "$drowsiness & $understanding")
-                    binding.loadingAnimation.visibility = View.GONE
-                    binding.timerButton.isClickable = true
-                }
-            }
-            .addOnSuccessListener { model ->
-                understanding = true
-                val modelFile = model?.file
-                if (modelFile != null) {
-                    Log.d("model path", model!!.file!!.path.toString())
-                }
-            }
-            .addOnFailureListener {
-                Toast.makeText(this, "이해도 측정 AI 업그레이드 실패 : $it", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "눈동자 위치 측정 AI 업그레이드 실패 : $it", Toast.LENGTH_SHORT).show()
             }
     }
 

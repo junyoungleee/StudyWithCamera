@@ -1,10 +1,12 @@
 package com.parklee.studywithcam.vision
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.graphics.Bitmap
 import android.media.Image
 import android.util.Log
 import android.util.Size
+import android.widget.Toast
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
 import androidx.lifecycle.Lifecycle
@@ -18,9 +20,9 @@ import com.google.mlkit.vision.face.FaceDetectorOptions
 /**
  * MLkit FaceDetection
  */
-class FaceDetectAnalyzer(lifecycle: Lifecycle) {
+class FaceDetectAnalyzer(lifecycle: Lifecycle, context: Context) {
 
-    private lateinit var nowImageProxy : ImageProxy
+    private var context: Context
     private var result = arrayListOf<Int>()
 
     private val options = FaceDetectorOptions.Builder()
@@ -29,17 +31,16 @@ class FaceDetectAnalyzer(lifecycle: Lifecycle) {
         .setContourMode(FaceDetectorOptions.CONTOUR_MODE_ALL)
         .setClassificationMode(FaceDetectorOptions.CLASSIFICATION_MODE_ALL)
         .setMinFaceSize(0.15f)
-//        .enableTracking() //disable when contour is enable https://developers.google.com/ml-kit/vision/face-detection/android
         .build()
 
     private val detector = FaceDetection.getClient(options)
 
     init {
         lifecycle.addObserver(detector)
+        this.context = context
     }
 
     fun analyze(image: ImageProxy): ArrayList<Int> {
-//        overlay.setPreviewSize(Size(image.width,image.height))
         detectFaces(image)
         return result
     }
@@ -49,20 +50,19 @@ class FaceDetectAnalyzer(lifecycle: Lifecycle) {
         val image = InputImage.fromMediaImage(imageProxy.image as Image, imageProxy.imageInfo.rotationDegrees)
         detector.process(image)
             .addOnSuccessListener { faces ->
-//                overlay.setFaces(faces)
-                result = FaceProcessing.getLongerEye(faces[0])
-                Log.d("face_result", "$result")
-
+                // 얼굴이 없을 때
+                if (faces.isNotEmpty()) {
+                    // 얼굴이 있을 때
+                    result = FaceProcessing.getLongerEye(faces[0])
+                    Log.d("face_result", "$result")
+                } else {
+                    Toast.makeText(context, "얼굴이 보이지 않아요", Toast.LENGTH_SHORT).show()
+                }
             }
             .addOnFailureListener(failureListener)
             .addOnCompleteListener{
                 imageProxy.close()
             }
-    }
-
-    @SuppressLint("UnsafeOptInUsageError")
-    private val successListener = OnSuccessListener<List<Face>> { faces ->
-        Log.d(TAG, "Number of face detected: " + faces.size)
     }
 
     private val failureListener = OnFailureListener { e ->

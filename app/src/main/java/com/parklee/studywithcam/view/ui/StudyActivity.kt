@@ -4,7 +4,6 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.Bitmap
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -15,7 +14,6 @@ import androidx.camera.core.AspectRatio
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.Preview
-import androidx.camera.core.impl.ImageAnalysisConfig
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -25,29 +23,28 @@ import com.parklee.studywithcam.SWCapplication
 import com.parklee.studywithcam.databinding.ActivityStudyBinding
 import com.parklee.studywithcam.model.entity.Disturb
 import com.parklee.studywithcam.model.entity.Study
-import com.parklee.studywithcam.repository.DatabaseRepository
 import com.parklee.studywithcam.repository.NetworkRepository
 import com.parklee.studywithcam.view.format.ClockFormat
 import com.parklee.studywithcam.viewmodel.ServerViewModel
 import com.parklee.studywithcam.viewmodel.ServerViewModelFactory
+import com.parklee.studywithcam.viewmodel.StudyViewModel
 import com.parklee.studywithcam.viewmodel.TimerViewModel
 import com.parklee.studywithcam.vision.*
 import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
 
 class StudyActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityStudyBinding
     private lateinit var timerVM: TimerViewModel
     private lateinit var serverVM: ServerViewModel
+    private lateinit var studyVM: StudyViewModel
 
     // Camera + Model
     private var cameraExecutor = Executors.newSingleThreadExecutor()
     private var clockFormat = ClockFormat()
 
-    private lateinit var drowsinessAnalyzer: FaceAnalyzer
-    private lateinit var understandingAnalyzer: FaceAnalyzer
     private lateinit var faceDetectAnalyzer: FaceDetectAnalyzer
+    private lateinit var gazeAnalyzer: EyeAnalyzer
 
     private var isPreviewOn: Boolean = true  // 카메라 프리뷰
     private var lastAnalyzedTimestamp = 0L
@@ -81,15 +78,18 @@ class StudyActivity : AppCompatActivity() {
         repository = NetworkRepository()
         viewModelFactory = ServerViewModelFactory(repository)
         serverVM = ViewModelProvider(this, viewModelFactory).get(ServerViewModel::class.java)
+        studyVM = ViewModelProvider(this).get(StudyViewModel::class.java)
 
         // 타이머
-        var init = SWCapplication.pref.getPrefTime("cTime")
         timerVM = ViewModelProvider(this).get(TimerViewModel::class.java)
-        timerVM.startTimer(init)  // 현재 타이머: 0, 누적 타이머: init
-
         timerVM.nTime.observe(this, Observer { time -> binding.studyNowTv.text = clockFormat.calSecToString(time) })
         timerVM.cTime.observe(this, Observer { time -> binding.studyCumulTv.text = clockFormat.calSecToString(time) })
 
+        beforeStartStudy() // 시작 전 화면 조정
+
+        // 분석 모델
+        faceDetectAnalyzer = FaceDetectAnalyzer(lifecycle, this)
+        gazeAnalyzer = EyeAnalyzer(this)
 
         // -----------------------------------------------------------------------------------------
         // 카메라
@@ -110,18 +110,28 @@ class StudyActivity : AppCompatActivity() {
         )
         this.addContentView(overlay, layoutOverlay)
 
-        // 분석 모델
-        drowsinessAnalyzer = FaceAnalyzer(this, AiModel.DROWSINESS)
-        understandingAnalyzer = FaceAnalyzer(this, AiModel.UNDERSTANDING)
-//        faceDetectAnalyzer = FaceDetectAnalyzer(lifecycle, overlay)
-        faceDetectAnalyzer = FaceDetectAnalyzer(lifecycle)
-
         // 돌아가기
         stopTimerButtonAction()
     }
 
-    override fun onResume() {
-        super.onResume()
+
+    //----------------------------------------------------------------------------------
+    // 화면 조정
+    private fun beforeStartStudy() {
+        binding.startButton.setOnClickListener {
+            with(binding) {
+                linearBeforeStart.visibility = View.GONE
+                linearCumul.visibility = View.VISIBLE
+                linearNow.visibility = View.VISIBLE
+                studyTimerButton.visibility = View.VISIBLE
+                cameraButton.visibility = View.VISIBLE
+                ivCropImage.visibility = View.VISIBLE
+            }
+
+            // 타이머 시작
+            val init = SWCapplication.pref.getPrefTime("cTime")
+            timerVM.startTimer(init)  // 현재 타이머: 0, 누적 타이머: init
+        }
     }
 
     //----------------------------------------------------------------------------------
@@ -168,29 +178,29 @@ class StudyActivity : AppCompatActivity() {
                 .build()
                 .also {
                     it.setAnalyzer(
-//                        cameraExecutor, ImageAnalysis.Analyzer { imageProxy ->
-//                            var result = drowsinessAnalyzer.classifyFace(imageProxy)
-//                            result = understandingAnalyzer.classifyFace(imageProxy)
-//                            imageProxy.close()
-//                        }
-//                        cameraExecutor, FaceDetectAnalyzer(lifecycle, overlay)
-
                         cameraExecutor, ImageAnalysis.Analyzer { imageProxy ->
 
                             var p = faceDetectAnalyzer.analyze(imageProxy)
-//
+
 //                            val currentTimestamp = System.currentTimeMillis()
 //                            if (currentTimestamp - lastAnalyzedTimestamp >= TimeUnit.SECONDS.toMillis(1)) {
 
-                                Log.d("face_activity_result", "$p")
-                                if (p.size != 0) {
-                                    var bitmap = FaceProcessing.cropImage(
+                                if (p.isNotEmpty()) {
+                                    val bitmap = FaceProcessing.cropImage(
                                         imageProxy.image,
                                         imageProxy.imageInfo.rotationDegrees.toFloat(), p[0], p[1], p[2]
                                     )
+                                    val result = gazeAnalyzer.classifyEyeDirection(bitmap)
+                                    Log.d("eye_gaze", "$result")
+
                                     runOnUiThread {
                                         // 테스트용
+                                        binding.tvGazeResult.text = result
                                         binding.ivCropImage.setImageBitmap(bitmap)
+                                    }
+                                } else {
+                                    runOnUiThread {
+                                        Toast.makeText(this, "얼굴이 보이지 않아요 :(", Toast.LENGTH_SHORT).show()
                                     }
                                 }
 //                                lastAnalyzedTimestamp = currentTimestamp
@@ -259,12 +269,6 @@ class StudyActivity : AppCompatActivity() {
             setResult(RESULT_OK, saveIntent)
             finish()
         }
-    }
-
-
-    override fun onBackPressed() {
-//        super.onBackPressed()
-        Toast.makeText(this, "하단의 학습 종료 버튼을 눌러 종료해주세요", Toast.LENGTH_SHORT).show()
     }
 
 }

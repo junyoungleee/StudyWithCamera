@@ -1,4 +1,0 @@
-eyeX + mouthX
-eyeX + mouthO
-eyeO + mouthX
-eyeO + mouthO

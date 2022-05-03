@@ -58,4 +58,8 @@
     <string name="withdrawal_title">회원탈퇴</string>
     <string name="withdrawal_context">정말 탈퇴하실건가요?ㅠㅠ</string>
     <string name="withdrawal_toast">탈퇴 처리를 완료하였습니다.\n그동안 사용해주셔서 감사합니다! :)</string>
+
+    <!-- study -->
+    <string name="study_hint_msg">공부 시작 전, 카메라 조정이 필요합니다\n되도록 카메라를 정면에 배치해주세요!</string>
+    <string name="study_start">시작하기</string>
 </resources>

@@ -3,11 +3,13 @@ package com.parklee.studywithcam.vision
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Matrix
+import android.graphics.PointF
 import android.media.Image
 import android.util.Log
 import com.google.mlkit.vision.face.Face
 import java.nio.ByteBuffer
 import kotlin.math.abs
+import kotlin.math.hypot
 
 /**
  * Analyze face landmark and extract information
@@ -18,12 +20,24 @@ object FaceProcessing {
 
     private var imageProcessing = ImageProcessing()
 
+    private fun getDistance(p1: PointF, p2: PointF): Double {
+        return hypot((p2.x - p1.x).toDouble(), (p2.y - p1.y).toDouble())
+    }
+
+//    fun getFaceDirection(face: Face): ArrayList<DIRECTION> {
+//        // Horizontal, Vertical 방향 체크
+//        // 얼굴 각도는 오른쪽인데 눈 위치는 왼쪽이면 멍 때림으로 체크할 수 있을 것
+//        val contour = face.allContours
+//        val p1 = contour[11].points[0]  // 코의 최상단 좌표
+//        val p2 = contour[0].points[8]   // 얼굴의 가장 왼쪽 좌표
+//        val p3 = contour[0].points[28]  // 얼굴의 가장 오른쪽 좌표
+//        val p4 = contour[0].points[18]  // 얼굴의 최하단 좌표
+//    }
+
     fun getLongerEye(face: Face): ArrayList<Int> {
         val contour = face.allContours
         val leftEye = contour[6].points
         val rightEye = contour[5].points
-        val face = contour[0].points
-        val nose = contour[2].points
 
         val leftLength = abs(leftEye[0].x - leftEye[8].x)
         val rightLength = abs(rightEye[0].x - rightEye[8].x)
@@ -68,7 +82,8 @@ object FaceProcessing {
 
         // 3 - Crop the Bitmap
         bitmap = Bitmap.createBitmap(bitmap, xOffset, yOffset, size, size)
-
         return bitmap
     }
+
+
 }
