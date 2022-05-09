@@ -1,35 +1,20 @@
 package com.parklee.studywithcam.view.ui.main
 
-import android.graphics.Color
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.FrameLayout
-import android.widget.TextView
 import android.widget.Toast
-import androidx.appcompat.widget.AppCompatButton
-import com.github.mikephil.charting.charts.LineChart
-import com.github.mikephil.charting.components.XAxis
-import com.github.mikephil.charting.data.Entry
-import com.github.mikephil.charting.data.LineData
-import com.github.mikephil.charting.data.LineDataSet
-import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
-import com.github.mikephil.charting.interfaces.datasets.ILineDataSet
 import com.parklee.studywithcam.R
 import com.parklee.studywithcam.SWCapplication
 import com.parklee.studywithcam.databinding.FragmentStatisticBinding
 import com.parklee.studywithcam.model.entity.DailyStudy
 import com.parklee.studywithcam.view.format.ClockFormat
 import com.parklee.studywithcam.view.graph.ColorCalendar
-import com.parklee.studywithcam.view.graph.TimeAxisValueFormat
-import com.parklee.studywithcam.view.graph.LineMarkerView
 import com.parklee.studywithcam.view.ui.statistic.StatisticDayFragment
 import com.parklee.studywithcam.view.ui.statistic.StatisticMonthFragment
 import com.parklee.studywithcam.view.ui.statistic.StatisticWeekFragment
-import java.lang.Math.abs
-import java.util.*
 import kotlin.collections.ArrayList
 
 

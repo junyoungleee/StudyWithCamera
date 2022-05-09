@@ -12,6 +12,7 @@ import androidx.camera.core.ImageProxy
 import androidx.lifecycle.Lifecycle
 import com.google.android.gms.tasks.OnFailureListener
 import com.google.android.gms.tasks.OnSuccessListener
+import com.google.firebase.ml.vision.face.FirebaseVisionFace
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.face.Face
 import com.google.mlkit.vision.face.FaceDetection
@@ -24,6 +25,7 @@ class FaceDetectAnalyzer(lifecycle: Lifecycle, context: Context) {
 
     private var context: Context
     private var result = arrayListOf<Int>()
+    private var blinked: Int = 0
 
     private val options = FaceDetectorOptions.Builder()
         .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_ACCURATE)
@@ -50,12 +52,21 @@ class FaceDetectAnalyzer(lifecycle: Lifecycle, context: Context) {
         val image = InputImage.fromMediaImage(imageProxy.image as Image, imageProxy.imageInfo.rotationDegrees)
         detector.process(image)
             .addOnSuccessListener { faces ->
-                // 얼굴이 없을 때
                 if (faces.isNotEmpty()) {
                     // 얼굴이 있을 때
                     result = FaceProcessing.getLongerEye(faces[0])
+
+                    if (faces[0].leftEyeOpenProbability != FirebaseVisionFace.UNCOMPUTED_PROBABILITY) {
+                        val leftOpenProb = faces[0].leftEyeOpenProbability
+                        val rightOpenProb = faces[0].rightEyeOpenProbability
+                        Log.d("face_open_prob", "$leftOpenProb, $rightOpenProb")
+                        blinked = if (leftOpenProb < 0.1 && rightOpenProb < 0.1) 1 else 0
+                    }
+
+                    result.add(blinked)
                     Log.d("face_result", "$result")
                 } else {
+                    result = arrayListOf<Int>()
                     Toast.makeText(context, "얼굴이 보이지 않아요", Toast.LENGTH_SHORT).show()
                 }
             }

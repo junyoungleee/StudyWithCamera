@@ -7,6 +7,8 @@ import android.graphics.PointF
 import android.media.Image
 import android.util.Log
 import com.google.mlkit.vision.face.Face
+import java.lang.Float.max
+import java.lang.Float.min
 import java.nio.ByteBuffer
 import kotlin.math.abs
 import kotlin.math.hypot
@@ -19,6 +21,8 @@ import kotlin.math.hypot
 object FaceProcessing {
 
     private var imageProcessing = ImageProcessing()
+
+    var longerEye: String = ""
 
     private fun getDistance(p1: PointF, p2: PointF): Double {
         return hypot((p2.x - p1.x).toDouble(), (p2.y - p1.y).toDouble())
@@ -34,6 +38,20 @@ object FaceProcessing {
 //        val p4 = contour[0].points[18]  // 얼굴의 최하단 좌표
 //    }
 
+    fun getEyeBlinked(face: Face): Int {
+        val contour = face.allContours
+        val leftEye = contour[6].points
+        val rightEye = contour[5].points
+
+        val leftHeight = abs(leftEye[4].y - leftEye[12].y)
+        val rightHeight = abs(rightEye[4].y - rightEye[12].y)
+        val height = max(leftHeight, rightHeight)
+        Log.d("eye_open_left", "${leftEye[4].y} , ${leftEye[12].y}  = $leftHeight")
+        Log.d("eye_open_right", "${rightEye[4].y} , ${rightEye[12].y} = $rightHeight")
+        return if (height <= 6.0) 1
+        else 0
+    }
+
     fun getLongerEye(face: Face): ArrayList<Int> {
         val contour = face.allContours
         val leftEye = contour[6].points
@@ -44,6 +62,7 @@ object FaceProcessing {
 
         var rectInfo = arrayListOf<Int>()
         if (leftLength >= rightLength) {
+            longerEye = "left"
             val size = abs(leftEye[0].x - leftEye[8].x)+20 // 양 옆에 10씩 추가
             val core = abs(leftEye[8].y + leftEye[0].y)/2  // 가운데 좌표
             Log.d("face_eye_left", "0x: ${leftEye[0].x}, 0y: ${leftEye[0].y}, 8x: ${leftEye[8].x}, 8y: ${leftEye[8].y}")
@@ -56,6 +75,7 @@ object FaceProcessing {
             }
 
         } else {
+            longerEye = "right"
             val size = abs(rightEye[0].x - rightEye[8].x)+20 // 양 옆에 5씩 추가
             val core = abs(rightEye[8].y + rightEye[0].y)/2  // 가운데 좌표
             Log.d("face_eye_right", "0x: ${rightEye[0].x}, 0y: ${rightEye[0].y}, 8x: ${rightEye[8].x}, 8y: ${rightEye[8].y}")

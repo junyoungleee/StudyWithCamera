@@ -15,6 +15,7 @@ import org.tensorflow.lite.support.common.ops.NormalizeOp
 import org.tensorflow.lite.support.image.ImageProcessor
 import org.tensorflow.lite.support.image.TensorImage
 import org.tensorflow.lite.support.image.ops.ResizeOp
+import org.tensorflow.lite.support.image.ops.Rot90Op
 import org.tensorflow.lite.support.label.TensorLabel
 import org.tensorflow.lite.support.tensorbuffer.TensorBuffer
 import java.io.IOException
@@ -75,20 +76,21 @@ class EyeAnalyzer {
         outputBuffer = TensorBuffer.createFixedSize(outputTensor.shape(), outputTensor.dataType())
     }
 
-    fun loadImage(bitmap: Bitmap): TensorImage {
+    fun loadImage(bitmap: Bitmap, rotateDegree: Int): TensorImage {
         inputImage.load(bitmap)
 
         val imageProcessor = ImageProcessor.Builder()
             .add(ResizeOp(modelInputWidth, modelInputHeight, ResizeOp.ResizeMethod.NEAREST_NEIGHBOR))
+            .add(Rot90Op(rotateDegree))
             .add(NormalizeOp(0f, 255f))
             .build()
 
         return imageProcessor.process(inputImage)
     }
 
-    fun classifyEyeDirection(image: Bitmap): String {
+    fun classifyEyeDirection(image: Bitmap, rotateDegree: Int): String {
 
-        inputImage = loadImage(image)
+        inputImage = loadImage(image, rotateDegree)
         interpreter.run(inputImage.buffer, outputBuffer.buffer.rewind())
 
         val output = TensorLabel(associatedAxisLabels, outputBuffer).mapWithFloatValue

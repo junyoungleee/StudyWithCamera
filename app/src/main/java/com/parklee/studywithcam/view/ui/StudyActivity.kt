@@ -19,10 +19,11 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import com.parklee.studywithcam.R
 import com.parklee.studywithcam.SWCapplication
 import com.parklee.studywithcam.databinding.ActivityStudyBinding
-import com.parklee.studywithcam.model.entity.Disturb
-import com.parklee.studywithcam.model.entity.Study
+import com.parklee.studywithcam.network.data.Disturb
+import com.parklee.studywithcam.network.data.Study
 import com.parklee.studywithcam.repository.NetworkRepository
 import com.parklee.studywithcam.view.format.ClockFormat
 import com.parklee.studywithcam.viewmodel.ServerViewModel
@@ -31,6 +32,7 @@ import com.parklee.studywithcam.viewmodel.StudyViewModel
 import com.parklee.studywithcam.viewmodel.TimerViewModel
 import com.parklee.studywithcam.vision.*
 import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 
 class StudyActivity : AppCompatActivity() {
 
@@ -112,6 +114,14 @@ class StudyActivity : AppCompatActivity() {
 
         // 돌아가기
         stopTimerButtonAction()
+
+        studyVM.notStudying.observe(this) { notStudying ->
+            if (notStudying) {
+                Toast.makeText(this, getString(R.string.study_empty), Toast.LENGTH_SHORT).show()
+                // 서버에 데이터 전송 로직 추가
+                finish()
+            }
+        }
     }
 
 
@@ -180,31 +190,36 @@ class StudyActivity : AppCompatActivity() {
                     it.setAnalyzer(
                         cameraExecutor, ImageAnalysis.Analyzer { imageProxy ->
 
-                            var p = faceDetectAnalyzer.analyze(imageProxy)
+                            val p = faceDetectAnalyzer.analyze(imageProxy)
 
-//                            val currentTimestamp = System.currentTimeMillis()
-//                            if (currentTimestamp - lastAnalyzedTimestamp >= TimeUnit.SECONDS.toMillis(1)) {
+                            val currentTimestamp = System.currentTimeMillis()
+                            if (currentTimestamp - lastAnalyzedTimestamp >= TimeUnit.SECONDS.toMillis(1)) {
 
                                 if (p.isNotEmpty()) {
+                                    val blinkResult = p[3]
+                                    studyVM.detectDrowsiness(blinkResult)
+                                    val rotate = imageProxy.imageInfo.rotationDegrees
                                     val bitmap = FaceProcessing.cropImage(
                                         imageProxy.image,
                                         imageProxy.imageInfo.rotationDegrees.toFloat(), p[0], p[1], p[2]
                                     )
-                                    val result = gazeAnalyzer.classifyEyeDirection(bitmap)
-                                    Log.d("eye_gaze", "$result")
+                                    val gazeResult = gazeAnalyzer.classifyEyeDirection(bitmap, rotate)
+                                    Log.d("eye_gaze", "$gazeResult")
 
+                                    // 테스트용
                                     runOnUiThread {
-                                        // 테스트용
-                                        binding.tvGazeResult.text = result
+                                        binding.tvGazeResult.text = "$gazeResult / $blinkResult"
                                         binding.ivCropImage.setImageBitmap(bitmap)
                                     }
                                 } else {
+                                    studyVM.detectEmptyFace()
                                     runOnUiThread {
                                         Toast.makeText(this, "얼굴이 보이지 않아요 :(", Toast.LENGTH_SHORT).show()
                                     }
+
                                 }
-//                                lastAnalyzedTimestamp = currentTimestamp
-//                            }
+                                lastAnalyzedTimestamp = currentTimestamp
+                            }
                         }
                     )
                 }

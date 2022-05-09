@@ -62,4 +62,5 @@
     <!-- study -->
     <string name="study_hint_msg">공부 시작 전, 카메라 조정이 필요합니다\n되도록 카메라를 정면에 배치해주세요!</string>
     <string name="study_start">시작하기</string>
+    <string name="study_empty">현재 자리에 없는 것으로 판단되어 학습을 종료합니다</string>
 </resources>
