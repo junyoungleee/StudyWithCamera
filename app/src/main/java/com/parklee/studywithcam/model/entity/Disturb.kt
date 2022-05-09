@@ -8,8 +8,6 @@ import com.squareup.moshi.Json
 @Entity
 data class Disturb (
     @PrimaryKey var date: String,
-    @Json(name="type") var type: String, // '졻'
-    @Json(name="startTime") var startTime: String, // 'hhmmss'
-    @Json(name="endTime") var endTime: String,  // hhmmss
-    @Json(name="time") var time: Int
-    )
+    @Json(name="type") var type: String,
+    @Json(name="startTime") var startTime: String,
+    @Json(name="endTime") var endTime: String)

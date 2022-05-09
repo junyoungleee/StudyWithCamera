@@ -2,7 +2,6 @@ package com.parklee.studywithcam.network
 
 
 import com.parklee.studywithcam.model.entity.DayStudys
-import com.parklee.studywithcam.network.NetworkConstants.Companion.BASE_URL
 import com.squareup.moshi.FromJson
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
@@ -14,24 +13,6 @@ import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.http.*
 import java.lang.reflect.Type
 import java.util.*
-
-
-private val moshi = Moshi.Builder()
-    .add(KotlinJsonAdapterFactory())
-    .build()
-
-object ServerApi {
-    private val retrofit by lazy {
-        Retrofit.Builder()
-            .addConverterFactory(MoshiConverterFactory.create(moshi))
-            .baseUrl(BASE_URL)
-            .build()
-    }
-    val retrofitService : ServerApiService by lazy {
-        retrofit.create(ServerApiService::class.java)
-    }
-}
-
 
 interface ServerApiService {
 

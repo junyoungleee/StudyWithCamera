@@ -1,6 +1,5 @@
 package com.parklee.studywithcam.model.dao
 
-import androidx.lifecycle.LiveData
 import androidx.room.*
 import com.parklee.studywithcam.model.entity.DailyStudy
 import com.parklee.studywithcam.model.entity.Disturb
