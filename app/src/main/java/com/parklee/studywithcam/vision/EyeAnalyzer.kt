@@ -6,11 +6,9 @@ import android.util.Log
 import com.google.firebase.ml.modeldownloader.CustomModelDownloadConditions
 import com.google.firebase.ml.modeldownloader.DownloadType
 import com.google.firebase.ml.modeldownloader.FirebaseModelDownloader
-import org.tensorflow.lite.DataType
 import org.tensorflow.lite.Interpreter
+import org.tensorflow.lite.gpu.GpuDelegate
 import org.tensorflow.lite.support.common.FileUtil
-import org.tensorflow.lite.support.common.TensorProcessor
-import org.tensorflow.lite.support.common.ops.DequantizeOp
 import org.tensorflow.lite.support.common.ops.NormalizeOp
 import org.tensorflow.lite.support.image.ImageProcessor
 import org.tensorflow.lite.support.image.TensorImage
@@ -31,6 +29,9 @@ class EyeAnalyzer {
     private var modelInputWidth: Int = 0
     private var modelInputHeight: Int = 0
     private lateinit var outputBuffer: TensorBuffer
+
+    protected val delegate = GpuDelegate()
+    protected var options = (Interpreter.Options()).addDelegate(delegate)
 
     var imageProcessing = ImageProcessing()
 
@@ -57,7 +58,7 @@ class EyeAnalyzer {
             .addOnSuccessListener { model ->
                 val modelFile = model?.file
                 if (modelFile != null) {
-                    interpreter = Interpreter(modelFile)
+                    interpreter = Interpreter(modelFile, options)   // delegate option 추가
                     initModelShape()
                 }
             }
