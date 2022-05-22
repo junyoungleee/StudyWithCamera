@@ -63,6 +63,8 @@ dependencies {
     def roomVersion = "2.3.0"
     implementation "androidx.room:room-ktx:$roomVersion"
     kapt "androidx.room:room-compiler:$roomVersion"
+    // Room Debug Tool
+    debugImplementation 'com.amitshekhar.android:debug-db:1.0.6'
 
     // Lifecycle components
     def lifecycleVersion = "2.2.0"

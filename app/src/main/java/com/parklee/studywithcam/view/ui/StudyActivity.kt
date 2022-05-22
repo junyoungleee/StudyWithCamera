@@ -48,7 +48,7 @@ class StudyActivity : AppCompatActivity() {
     private lateinit var faceDetectAnalyzer: FaceDetectAnalyzer
     private lateinit var gazeAnalyzer: EyeAnalyzer
 
-    private var isPreviewOn: Boolean = true  // 카메라 프리뷰
+    var isPreviewOn: Boolean = true  // 카메라 프리뷰
     private var lastAnalyzedTimestamp = 0L
 
     private lateinit var overlay: VisionOverlay
@@ -66,10 +66,6 @@ class StudyActivity : AppCompatActivity() {
     lateinit var repository: NetworkRepository
     lateinit var viewModelFactory: ServerViewModelFactory
 
-    // check StudyX
-    private lateinit var studys: List<Study>
-    private lateinit var disturbs: List<Disturb>
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityStudyBinding.inflate(layoutInflater)
@@ -84,10 +80,8 @@ class StudyActivity : AppCompatActivity() {
 
         // 타이머
         timerVM = ViewModelProvider(this).get(TimerViewModel::class.java)
-        timerVM.nTime.observe(this, Observer { time -> binding.studyNowTv.text = clockFormat.calSecToString(time) })
-        timerVM.cTime.observe(this, Observer { time -> binding.studyCumulTv.text = clockFormat.calSecToString(time) })
-
-        beforeStartStudy() // 시작 전 화면 조정
+        setTimer()
+        beforeStartStudy()
 
         // 분석 모델
         faceDetectAnalyzer = FaceDetectAnalyzer(lifecycle, this)
@@ -100,9 +94,10 @@ class StudyActivity : AppCompatActivity() {
             startCamera(isPreviewOn)
         } else {
             ActivityCompat.requestPermissions(
-                this, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS)
+                this, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS
+            )
         }
-        binding.cameraButton.isSelected = true
+        binding.cameraPreviewButton.isSelected = true
         setCameraPreviewButton()
 
         overlay = VisionOverlay(this)
@@ -126,27 +121,41 @@ class StudyActivity : AppCompatActivity() {
 
 
     //----------------------------------------------------------------------------------
-    // 화면 조정
+    // 화면 조정 후 공부 시작
     private fun beforeStartStudy() {
-        binding.startButton.setOnClickListener {
+        binding.layoutBeforeStart.startButton.setOnClickListener {
             with(binding) {
-                linearBeforeStart.visibility = View.GONE
-                linearCumul.visibility = View.VISIBLE
-                linearNow.visibility = View.VISIBLE
+                layoutBeforeStart.linearBeforeStart.visibility = View.GONE
+                layoutTimerCumul.llTimer.visibility = View.VISIBLE
+                layoutTimerNow.llTimer.visibility = View.VISIBLE
                 studyTimerButton.visibility = View.VISIBLE
-                cameraButton.visibility = View.VISIBLE
+                cameraPreviewButton.visibility = View.VISIBLE
                 ivCropImage.visibility = View.VISIBLE
             }
-
             // 타이머 시작
-            val init = SWCapplication.pref.getPrefTime("cTime")
-            timerVM.startTimer(init)  // 현재 타이머: 0, 누적 타이머: init
+            timerVM.startTimer()  // 현재 타이머: 0, 누적 타이머: init
         }
+    }
+
+    private fun setTimer() {
+        timerVM.nTime.observe(
+            this,
+            Observer { time -> binding.layoutTimerNow.tvTimer.text = clockFormat.calSecToString(time) })
+        timerVM.cTime.observe(
+            this,
+            Observer { time -> binding.layoutTimerCumul.tvTimer.text = clockFormat.calSecToString(time) })
+
+        binding.layoutTimerNow.tvTimerText.text = getString(R.string.study_now_timer)
+        binding.layoutTimerCumul.tvTimerText.text = getString(R.string.study_cumul_timer)
     }
 
     //----------------------------------------------------------------------------------
     // 카메라 권한
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == REQUEST_CODE_PERMISSIONS) {
             if (allPermissionsGranted()) {
@@ -160,7 +169,8 @@ class StudyActivity : AppCompatActivity() {
 
     private fun allPermissionsGranted() = REQUIRED_PERMISSIONS.all {
         ContextCompat.checkSelfPermission(
-            baseContext, it) == PackageManager.PERMISSION_GRANTED
+            baseContext, it
+        ) == PackageManager.PERMISSION_GRANTED
     }
 
 
@@ -170,7 +180,8 @@ class StudyActivity : AppCompatActivity() {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
 
         cameraProviderFuture.addListener(Runnable {
-            val cameraProvider: ProcessCameraProvider = cameraProviderFuture.get()  // lifecycle & 카메라 bind
+            val cameraProvider: ProcessCameraProvider =
+                cameraProviderFuture.get()  // lifecycle & 카메라 bind
             val cameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA // default : 정면 카메라
 
             // CameraX preview(미리보기)
@@ -178,8 +189,8 @@ class StudyActivity : AppCompatActivity() {
                 .setTargetAspectRatio(AspectRatio.RATIO_4_3)
                 .build()
                 .also {
-                it.setSurfaceProvider(binding.studyPreview.surfaceProvider)
-            }
+                    it.setSurfaceProvider(binding.studyPreview.surfaceProvider)
+                }
 
             var lastAnalyzedTimestamp = 0L
             // CameraX analyze(분석하기)
@@ -193,17 +204,29 @@ class StudyActivity : AppCompatActivity() {
                             val p = faceDetectAnalyzer.analyze(imageProxy)
 
                             val currentTimestamp = System.currentTimeMillis()
-                            if (currentTimestamp - lastAnalyzedTimestamp >= TimeUnit.SECONDS.toMillis(1)) {
+                            if (currentTimestamp - lastAnalyzedTimestamp >= TimeUnit.SECONDS.toMillis(
+                                    1
+                                )
+                            ) {
 
                                 if (p.isNotEmpty()) {
-                                    val blinkResult = p[3]
-                                    studyVM.detectDrowsiness(blinkResult)
+                                    val blinkResult =
+                                        if (p[3] == 1) BLINK_STATE.CLOSE else BLINK_STATE.OPEN
+                                    val headDirection =
+                                        if (p[4] == 1) HEAD_STATE.UP else HEAD_STATE.DOWN
+
                                     val rotate = imageProxy.imageInfo.rotationDegrees
                                     val bitmap = FaceProcessing.cropImage(
                                         imageProxy.image,
-                                        imageProxy.imageInfo.rotationDegrees.toFloat(), p[0], p[1], p[2]
+                                        imageProxy.imageInfo.rotationDegrees.toFloat(),
+                                        p[0],
+                                        p[1],
+                                        p[2]
                                     )
-                                    val gazeResult = gazeAnalyzer.classifyEyeDirection(bitmap, rotate)
+                                    val gazeResult =
+                                        gazeAnalyzer.classifyEyeDirection(bitmap, rotate)
+
+                                    studyVM.analyzeDisturb(blinkResult, gazeResult, headDirection)
                                     Log.d("eye_gaze", "$gazeResult")
 
                                     // 테스트용
@@ -214,7 +237,8 @@ class StudyActivity : AppCompatActivity() {
                                 } else {
                                     studyVM.detectEmptyFace()
                                     runOnUiThread {
-                                        Toast.makeText(this, "얼굴이 보이지 않아요 :(", Toast.LENGTH_SHORT).show()
+                                        Toast.makeText(this, "얼굴이 보이지 않아요 :(", Toast.LENGTH_SHORT)
+                                            .show()
                                     }
 
                                 }
@@ -227,8 +251,13 @@ class StudyActivity : AppCompatActivity() {
             try {
                 cameraProvider.unbindAll()  // rebinding 전 모든 케이스 unbind
                 // bind use case to camera
-                when(isPreviewOn) {
-                    true ->  cameraProvider.bindToLifecycle(this, cameraSelector, preview, analysisUseCase)
+                when (isPreviewOn) {
+                    true -> cameraProvider.bindToLifecycle(
+                        this,
+                        cameraSelector,
+                        preview,
+                        analysisUseCase
+                    )
                     false -> cameraProvider.bindToLifecycle(this, cameraSelector, analysisUseCase)
                 }
             } catch (exc: Exception) {
@@ -239,17 +268,17 @@ class StudyActivity : AppCompatActivity() {
 
     // 카메라 프리뷰 온오프 버튼 세팅
     private fun setCameraPreviewButton() {
-        binding.cameraButton.setOnClickListener {
+        binding.cameraPreviewButton.setOnClickListener {
             if(isPreviewOn) {
                 // 프리뷰 OFF
                 isPreviewOn = false
-                binding.cameraButton.isSelected = false
+                binding.cameraPreviewButton.isSelected = false
                 binding.studyPreview.visibility = View.GONE
 
             } else {
                 // 프리뷰 ON
                 isPreviewOn = true
-                binding.cameraButton.isSelected = true
+                binding.cameraPreviewButton.isSelected = true
                 binding.studyPreview.visibility = View.VISIBLE
             }
             startCamera(isPreviewOn)
@@ -284,6 +313,7 @@ class StudyActivity : AppCompatActivity() {
             setResult(RESULT_OK, saveIntent)
             finish()
         }
+
     }
 
 }

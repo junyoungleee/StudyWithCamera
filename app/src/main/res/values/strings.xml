@@ -3,12 +3,20 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 
+    <string name="study_text_camera_off">분석중...</string>
+    <string name="study_now_timer">현재 공부 시간</string>
+    <string name="study_cumul_timer">누적 공부 시간</string>
 
     <!-- fragment_statistic -->
+    <string name="state_study">공부 상태</string>
+    <string name="state_drowsiness">졸음 상태</string>
+    <string name="state_space_out">멍 때림 상태</string>
+
     <string name="statistic_day_title1">오늘의 공부 시간</string>
     <string name="statistic_day_title2">어제의 공부 시간</string>
     <string name="statistic_day_me">어제의 나</string>
-    <string name="statistic_day_title3">오늘의 끈기 그래프</string>
+    <string name="statistic_day_title3">오늘의 공부 그래프</string>
+    <string name="statistic_day_title4">내가 정말 공부한 시간은?</string>
 
     <string name="statistic_week_title1">이번 주의 공부 시간</string>
     <string name="statistic_week_title2">지난 주의 공부 시간</string>
@@ -26,8 +34,8 @@
     <string name="statistic_graph_middle_moreless">보다</string>
     <string name="statistic_graph_middle_same">랑</string>
 
-
-
+    <string name="statistic_graph_guide_disturb">X -</string>
+    <string name="statistic_graph_guide_study">O -</string>
 
 
     <string name="title_activity_drawer">DrawerActivity</string>
@@ -37,10 +45,6 @@
     <string name="nav_header_subtitle">android.studio@android.com</string>
     <string name="nav_header_desc">Navigation header</string>
     <string name="action_settings">Settings</string>
-
-    <string name="statistic_graph_description1">공부 시작 20분마다 등급은 상승되고,</string>
-    <string name="statistic_graph_description2">n분 이상 집중력 저하로 판단되면 등급이 떨어집니다!</string>
-
 
     <string name="menu_home">Home</string>
     <string name="menu_gallery">Gallery</string>
