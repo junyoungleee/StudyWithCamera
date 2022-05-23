@@ -1,19 +1,6 @@
 package com.parklee.studywithcam.network
 
 
-import com.parklee.studywithcam.model.entity.DayStudys
-import com.squareup.moshi.FromJson
-import com.squareup.moshi.JsonAdapter
-import com.squareup.moshi.Moshi
-import com.squareup.moshi.Types
-import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
-import kotlinx.coroutines.Deferred
-import retrofit2.Retrofit
-import retrofit2.converter.moshi.MoshiConverterFactory
-import retrofit2.http.*
-import java.lang.reflect.Type
-import java.util.*
-
 interface ServerApiService {
 
 //    // 타이머 멈췄을 때, 서버에 공부구간 데이터 보냄

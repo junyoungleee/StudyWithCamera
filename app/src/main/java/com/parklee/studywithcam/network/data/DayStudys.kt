@@ -1,6 +1,8 @@
-package com.parklee.studywithcam.model.entity
+package com.parklee.studywithcam.network.data
 
 import androidx.room.Entity
+import com.parklee.studywithcam.model.entity.Disturb
+import com.parklee.studywithcam.model.entity.Study
 import com.squareup.moshi.Json
 
 @Entity

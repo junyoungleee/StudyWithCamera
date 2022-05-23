@@ -1,6 +1,5 @@
 package com.parklee.studywithcam.repository
 
-import com.parklee.studywithcam.model.entity.DayStudys
 import com.parklee.studywithcam.network.ApiBuilder
 import com.parklee.studywithcam.network.ServerApiService
 
