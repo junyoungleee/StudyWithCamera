@@ -28,28 +28,15 @@ object FaceProcessing {
         return hypot((p2.x - p1.x).toDouble(), (p2.y - p1.y).toDouble())
     }
 
-//    fun getFaceDirection(face: Face): ArrayList<DIRECTION> {
-//        // Horizontal, Vertical 방향 체크
-//        // 얼굴 각도는 오른쪽인데 눈 위치는 왼쪽이면 멍 때림으로 체크할 수 있을 것
-//        val contour = face.allContours
-//        val p1 = contour[11].points[0]  // 코의 최상단 좌표
-//        val p2 = contour[0].points[8]   // 얼굴의 가장 왼쪽 좌표
-//        val p3 = contour[0].points[28]  // 얼굴의 가장 오른쪽 좌표
-//        val p4 = contour[0].points[18]  // 얼굴의 최하단 좌표
-//    }
-
-    fun getEyeBlinked(face: Face): Int {
+    fun getFaceDirection(face: Face): Int {
         val contour = face.allContours
-        val leftEye = contour[6].points
-        val rightEye = contour[5].points
+        val nose = contour[11].points
+        val face = contour[0].points
 
-        val leftHeight = abs(leftEye[4].y - leftEye[12].y)
-        val rightHeight = abs(rightEye[4].y - rightEye[12].y)
-        val height = max(leftHeight, rightHeight)
-        Log.d("eye_open_left", "${leftEye[4].y} , ${leftEye[12].y}  = $leftHeight")
-        Log.d("eye_open_right", "${rightEye[4].y} , ${rightEye[12].y} = $rightHeight")
-        return if (height <= 6.0) 1
-        else 0
+        val upperFaceHeight = nose[0].y - nose[1].y
+        val lowerFaceHeight = nose[1].y - face[18].y
+
+        return if (upperFaceHeight/lowerFaceHeight < 0.53) 1 else 0
     }
 
     fun getLongerEye(face: Face): ArrayList<Int> {

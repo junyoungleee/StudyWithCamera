@@ -1,11 +1,10 @@
 package com.parklee.studywithcam.viewmodel
 
 import androidx.lifecycle.*
-import com.parklee.studywithcam.network.data.Disturb
+import com.parklee.studywithcam.SWCapplication
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
 
 class TimerViewModel() : ViewModel() {
 
@@ -25,9 +24,9 @@ class TimerViewModel() : ViewModel() {
         _nTime.value = nSec
     }
 
-    fun startTimer(init: Int) {
+    fun startTimer() {
         viewModelScope.launch {
-            cSec = init
+            cSec = SWCapplication.pref.getPrefTime("cTime")
             timeTask = viewModelScope.launch {
                 while (true) {
                     nSec++

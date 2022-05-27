@@ -10,6 +10,7 @@ import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.camera.core.AspectRatio
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
@@ -22,14 +23,9 @@ import androidx.lifecycle.ViewModelProvider
 import com.parklee.studywithcam.R
 import com.parklee.studywithcam.SWCapplication
 import com.parklee.studywithcam.databinding.ActivityStudyBinding
-import com.parklee.studywithcam.network.data.Disturb
-import com.parklee.studywithcam.network.data.Study
 import com.parklee.studywithcam.repository.NetworkRepository
 import com.parklee.studywithcam.view.format.ClockFormat
-import com.parklee.studywithcam.viewmodel.ServerViewModel
-import com.parklee.studywithcam.viewmodel.ServerViewModelFactory
-import com.parklee.studywithcam.viewmodel.StudyViewModel
-import com.parklee.studywithcam.viewmodel.TimerViewModel
+import com.parklee.studywithcam.viewmodel.*
 import com.parklee.studywithcam.vision.*
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
@@ -38,8 +34,14 @@ class StudyActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityStudyBinding
     private lateinit var timerVM: TimerViewModel
-    private lateinit var serverVM: ServerViewModel
-    private lateinit var studyVM: StudyViewModel
+
+    private val serverVM: ServerViewModel by viewModels() {
+        ServerViewModelFactory((application as SWCapplication).networkRepository)
+    }
+
+    private val studyVM: StudyViewModel by viewModels() {
+        StudyViewModelFactory((application as SWCapplication).dbRepository)
+    }
 
     // Camera + Model
     private var cameraExecutor = Executors.newSingleThreadExecutor()
@@ -72,11 +74,6 @@ class StudyActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         uid = SWCapplication.pref.getUid("uid") // uid 받아오기
-
-        repository = NetworkRepository()
-        viewModelFactory = ServerViewModelFactory(repository)
-        serverVM = ViewModelProvider(this, viewModelFactory).get(ServerViewModel::class.java)
-        studyVM = ViewModelProvider(this).get(StudyViewModel::class.java)
 
         // 타이머
         timerVM = ViewModelProvider(this).get(TimerViewModel::class.java)
@@ -134,6 +131,7 @@ class StudyActivity : AppCompatActivity() {
             }
             // 타이머 시작
             timerVM.startTimer()  // 현재 타이머: 0, 누적 타이머: init
+            studyVM.setStudyStartTime()
         }
     }
 
@@ -204,10 +202,7 @@ class StudyActivity : AppCompatActivity() {
                             val p = faceDetectAnalyzer.analyze(imageProxy)
 
                             val currentTimestamp = System.currentTimeMillis()
-                            if (currentTimestamp - lastAnalyzedTimestamp >= TimeUnit.SECONDS.toMillis(
-                                    1
-                                )
-                            ) {
+                            if (currentTimestamp - lastAnalyzedTimestamp >= TimeUnit.SECONDS.toMillis(1)) {
 
                                 if (p.isNotEmpty()) {
                                     val blinkResult =
@@ -223,8 +218,7 @@ class StudyActivity : AppCompatActivity() {
                                         p[1],
                                         p[2]
                                     )
-                                    val gazeResult =
-                                        gazeAnalyzer.classifyEyeDirection(bitmap, rotate)
+                                    val gazeResult = gazeAnalyzer.classifyEyeDirection(bitmap, rotate)
 
                                     studyVM.analyzeDisturb(blinkResult, gazeResult, headDirection)
                                     Log.d("eye_gaze", "$gazeResult")
@@ -314,6 +308,12 @@ class StudyActivity : AppCompatActivity() {
             finish()
         }
 
+    }
+
+    override fun onStop() {
+        super.onStop()
+        studyVM.saveDisturbSection()
+        studyVM.saveStudySection()
     }
 
 }

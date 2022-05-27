@@ -55,6 +55,7 @@ class FaceDetectAnalyzer(lifecycle: Lifecycle, context: Context) {
                 if (faces.isNotEmpty()) {
                     // 얼굴이 있을 때
                     result = FaceProcessing.getLongerEye(faces[0])
+                    val headPosition = FaceProcessing.getFaceDirection(faces[0])
 
                     if (faces[0].leftEyeOpenProbability != FirebaseVisionFace.UNCOMPUTED_PROBABILITY) {
                         val leftOpenProb = faces[0].leftEyeOpenProbability
@@ -64,6 +65,7 @@ class FaceDetectAnalyzer(lifecycle: Lifecycle, context: Context) {
                     }
 
                     result.add(blinked)
+                    result.add(headPosition)
                     Log.d("face_result", "$result")
                 } else {
                     result = arrayListOf<Int>()
