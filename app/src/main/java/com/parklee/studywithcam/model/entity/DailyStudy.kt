@@ -5,6 +5,5 @@ import androidx.room.PrimaryKey
 
 @Entity
 data class DailyStudy (
-    @PrimaryKey var date: String,
-    var time: Int
-        )
+    @PrimaryKey val date: String,
+    val time: Int )

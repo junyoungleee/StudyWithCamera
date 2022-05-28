@@ -2,7 +2,7 @@ package com.parklee.studywithcam.network.data
 
 import com.squareup.moshi.Json
 
-data class Study(
+data class Studys(
     val date: String,
     @Json(name="startTime") val startTime: String,
     @Json(name="endTime") val endTime: String,

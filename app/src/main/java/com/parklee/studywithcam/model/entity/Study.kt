@@ -6,8 +6,9 @@ import com.squareup.moshi.Json
 
 @Entity
 data class Study(
-    @PrimaryKey var date: String,
-    @Json(name="startTime") var startTime: String,
-    @Json(name="endTime") var endTime: String,
-    @Json(name="time") var time: Int
+    @PrimaryKey(autoGenerate = true) val id: Int = 0,
+    val date: String,
+    val startTime: String,
+    val endTime: String,
+    val time: Int
 )

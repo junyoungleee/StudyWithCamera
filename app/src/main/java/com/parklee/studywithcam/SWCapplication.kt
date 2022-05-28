@@ -11,9 +11,7 @@ import kotlinx.coroutines.SupervisorJob
 
 class SWCapplication : Application() {
 
-    val applicationScope = CoroutineScope(SupervisorJob())
-
-    val database by lazy { StudyDatabase.getDatabase(this, applicationScope)}
+    val database by lazy { StudyDatabase.getDatabase(applicationContext)}
     val dbRepository by lazy { DatabaseRepository(database!!.studyDao())}
     val networkRepository by lazy { NetworkRepository()}
 

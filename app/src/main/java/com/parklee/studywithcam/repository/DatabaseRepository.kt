@@ -5,15 +5,13 @@ import com.parklee.studywithcam.model.dao.StudyDAO
 import com.parklee.studywithcam.model.entity.DailyStudy
 import com.parklee.studywithcam.model.entity.Disturb
 import com.parklee.studywithcam.model.entity.Study
+import kotlinx.coroutines.flow.Flow
+import java.time.DayOfWeek
+import java.time.LocalDate
+import java.time.temporal.TemporalAdjusters
 
 
 class DatabaseRepository(private val studyDao: StudyDAO) {
-
-    lateinit var calendarData: LiveData<List<DailyStudy>>
-    lateinit var yesterdayTime: LiveData<Int>
-    lateinit var lastWeekTime: LiveData<Int>
-    lateinit var lastMonthTime: LiveData<Int>
-
 
     // 데이터 삽입 & 업데이트 ----------------------------------------------------
     suspend fun insertDayStudy(dailyStudy: DailyStudy){
@@ -28,41 +26,39 @@ class DatabaseRepository(private val studyDao: StudyDAO) {
         studyDao.insertDisturbSection(disturbSection)
     }
 
+    // 리포트 페이지 ------------------------------------------------------------
+    // 캘린더 데이터 받아오는 메서드
+    fun getCalendarState(): Flow<List<DailyStudy>> {
+        val today = LocalDate.now().toString()
+        val thisMonth = today.substring(0, 7)  // yyyy-MM
 
+        return studyDao.getCalendarState(thisMonth)
+    }
 
-//    // 리포트 페이지 ------------------------------------------------------------
-//    // 캘린더 데이터 받아오는 메서드
-//    suspend fun getCalendarState(): LiveData<List<DailyStudy>> {
-//        val today = LocalDate.now().toString()
-//        val thisMonth = today.substring(0, 7)  // yyyy-MM
-//
-//        calendarData = studyDao.getCalendarState(thisMonth)
-//        return calendarData
-//    }
-//
-//    // 어제 누적 시간 받아오는 메서드
-//    suspend fun getYesterdayTime(): LiveData<Int> {
-//        val yesterday = LocalDate.now().minusDays(1)
-//        yesterdayTime = studyDao.getYesterdayTime("$yesterday")
-//        return yesterdayTime
-//    }
-//
-//    // 지난주 누적 시간 받아오는 메서드
-//    suspend fun getLastWeekTime(): LiveData<Int> {
-//        val today = LocalDate.now()
-//        val startDay = today.with(TemporalAdjusters.previous(DayOfWeek.MONDAY))
-//        val endDay = today.with(TemporalAdjusters.previous(DayOfWeek.SUNDAY))
-//
-//        lastWeekTime = studyDao.getLastWeekTime("$startDay", "$endDay")
-//        return lastWeekTime
-//    }
-//
-//    // 지난달 누적 시간 받아오는 메서드
-//    suspend fun getLastMonthTime(): LiveData<Int> {
-//        val today = LocalDate.now().toString()
-//        val thisMonth = today.substring(0, 7)  // yyyy-MM
-//
-//        lastMonthTime = studyDao.getLastMonthTime("$thisMonth")
-//        return lastMonthTime
-//    }
+    // 어제 누적 시간 받아오는 메서드
+    fun getYesterdayTime(): Flow<Int> {
+        val yesterday = LocalDate.now().minusDays(1)
+        return studyDao.getYesterdayTime("$yesterday")
+    }
+
+    suspend fun getTodayDisturbSections(type: String): List<Disturb> {
+        val today = LocalDate.now().toString()
+        return studyDao.getTodayDisturbSections(today, type)
+    }
+
+    suspend fun getTodayStudySections(): List<Study> {
+        val today = LocalDate.now().toString()
+        return studyDao.getTodayStudySections(today)
+    }
+
+    fun getTodayRealStudyTime(): Flow<Int> {
+        val today = LocalDate.now().toString()
+        return studyDao.getTodayRealStudyTime(today)
+    }
+
+    fun getTodayDisturbTypeTime(type: String): Flow<Int> {
+        val today = LocalDate.now().toString()
+        return studyDao.getTodayDisturbTypeTime(today, type)
+    }
+
 }

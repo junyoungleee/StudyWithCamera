@@ -2,7 +2,7 @@ package com.parklee.studywithcam.network.data
 
 import com.squareup.moshi.Json
 
-data class Disturb (
+data class Disturbs (
     val date: String,
     @Json(name="type") val type: String,
     @Json(name="startTime") val startTime: String,
