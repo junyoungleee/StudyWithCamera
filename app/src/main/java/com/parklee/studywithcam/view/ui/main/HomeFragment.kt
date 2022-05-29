@@ -22,7 +22,6 @@ class HomeFragment : Fragment() {
 
     lateinit var nTimeTextView: TextView
     lateinit var cTimeTextView: TextView
-    private var clockFormat = ClockFormat()
 
     lateinit var auth: FirebaseAuth
     lateinit var menuButton: ImageButton
@@ -62,8 +61,8 @@ class HomeFragment : Fragment() {
         var nSec = SWCapplication.pref.getPrefTime("nTime")
         var cSec = SWCapplication.pref.getPrefTime("cTime")
 
-        nTimeTextView.text = clockFormat.calSecToString(nSec)
-        cTimeTextView.text = clockFormat.calSecToString(cSec)
+        nTimeTextView.text = ClockFormat.calSecToString(nSec)
+        cTimeTextView.text = ClockFormat.calSecToString(cSec)
     }
 
 }

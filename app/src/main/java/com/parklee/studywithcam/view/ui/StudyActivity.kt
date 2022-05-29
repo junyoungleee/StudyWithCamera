@@ -45,7 +45,6 @@ class StudyActivity : AppCompatActivity() {
 
     // Camera + Model
     private var cameraExecutor = Executors.newSingleThreadExecutor()
-    private var clockFormat = ClockFormat()
 
     private lateinit var faceDetectAnalyzer: FaceDetectAnalyzer
     private lateinit var gazeAnalyzer: EyeAnalyzer
@@ -111,6 +110,7 @@ class StudyActivity : AppCompatActivity() {
             if (notStudying) {
                 Toast.makeText(this, getString(R.string.study_empty), Toast.LENGTH_SHORT).show()
                 // 서버에 데이터 전송 로직 추가
+                studyVM.saveStudyData(timerVM.cTime.value!!)
                 finish()
             }
         }
@@ -130,7 +130,7 @@ class StudyActivity : AppCompatActivity() {
                 ivCropImage.visibility = View.VISIBLE
             }
             // 타이머 시작
-            timerVM.startTimer()  // 현재 타이머: 0, 누적 타이머: init
+            timerVM.startTimer()
             studyVM.setStudyStartTime()
         }
     }
@@ -138,10 +138,10 @@ class StudyActivity : AppCompatActivity() {
     private fun setTimer() {
         timerVM.nTime.observe(
             this,
-            Observer { time -> binding.layoutTimerNow.tvTimer.text = clockFormat.calSecToString(time) })
+            Observer { time -> binding.layoutTimerNow.tvTimer.text = ClockFormat.calSecToString(time) })
         timerVM.cTime.observe(
             this,
-            Observer { time -> binding.layoutTimerCumul.tvTimer.text = clockFormat.calSecToString(time) })
+            Observer { time -> binding.layoutTimerCumul.tvTimer.text = ClockFormat.calSecToString(time) })
 
         binding.layoutTimerNow.tvTimerText.text = getString(R.string.study_now_timer)
         binding.layoutTimerCumul.tvTimerText.text = getString(R.string.study_cumul_timer)
@@ -285,6 +285,7 @@ class StudyActivity : AppCompatActivity() {
     private fun stopTimerButtonAction() {
         binding.studyTimerButton.setOnClickListener {
             timerVM.stopTimer()
+            studyVM.saveStudyData(timerVM.cTime.value!!)
 
             // post dummy data
 //            var dummyStudys: List<Study> = listOf(Study("123000", "125000"))
@@ -292,7 +293,6 @@ class StudyActivity : AppCompatActivity() {
 
 //            var dummyData = StopStudys(dummyStudys, dummyFocusX)
 //            serverVM.postStudyData("dummydummy", dummyData) // 성공
-
 
             SWCapplication.pref.setPrefTime("cTime", timerVM.cTime.value!!.toInt())
             SWCapplication.pref.setPrefTime("nTime", timerVM.nTime.value!!.toInt())
@@ -308,12 +308,6 @@ class StudyActivity : AppCompatActivity() {
             finish()
         }
 
-    }
-
-    override fun onStop() {
-        super.onStop()
-        studyVM.saveDisturbSection()
-        studyVM.saveStudySection()
     }
 
 }

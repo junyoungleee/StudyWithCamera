@@ -1,13 +1,8 @@
 package com.parklee.studywithcam.viewmodel
 
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewModelScope
-import com.parklee.studywithcam.model.entity.DayStudys
 import com.parklee.studywithcam.repository.NetworkRepository
-import kotlinx.coroutines.launch
-import java.util.*
 
 class ServerViewModel(private val repository: NetworkRepository) : ViewModel() {
 

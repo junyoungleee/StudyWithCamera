@@ -38,9 +38,9 @@ interface StudyDAO{
     suspend fun getTodayStudySections(today: String): List<Study>
 
     @Query("SELECT time FROM DailyStudy WHERE date = :today")
-    fun getTodayRealStudyTime(today: String): Flow<Int>
+    suspend fun getTodayRealStudyTime(today: String): Int
 
     @Query("SELECT SUM(time) FROM Disturb WHERE date = :today AND type = :type")
-    fun getTodayDisturbTypeTime(today: String, type: String): Flow<Int>
+    suspend fun getTodayDisturbTypeTime(today: String, type: String): Int
 
 }

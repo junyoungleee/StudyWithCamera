@@ -2,6 +2,7 @@ package com.parklee.studywithcam.view.ui.main
 
 import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -32,8 +33,6 @@ class StatisticFragment : Fragment() {
 
     private var _binding: FragmentStatisticBinding? = null
     private val binding get() = _binding!!
-
-    private val clockFormat = ClockFormat()
 
     private val graphVM: GraphViewModel by viewModels {
         GraphViewModelFactory((requireActivity().application as SWCapplication).dbRepository)
@@ -66,10 +65,10 @@ class StatisticFragment : Fragment() {
         uid = SWCapplication.pref.getUid("uid")
 
         graphVM.setLinearGraphData()
+        graphVM.setPieChartData()
 
         initTimeChart()
         initPercentageChart()
-        initPercentageChartView()
 
         return view
     }
@@ -89,8 +88,8 @@ class StatisticFragment : Fragment() {
             timeComparedMe.text = getString(R.string.statistic_day_me)
         }
 
-        binding.timeNow.text = clockFormat.calSecToString(thisStudy)
-        binding.timeBefore.text = clockFormat.calSecToString(lastStudy)
+        binding.timeNow.text = ClockFormat.calSecToString(thisStudy)
+        binding.timeBefore.text = ClockFormat.calSecToString(lastStudy)
 
         setTimeStatisticGapText(thisStudy, lastStudy)
     }
@@ -99,7 +98,7 @@ class StatisticFragment : Fragment() {
         var gap = now - before
         if (gap > 0) {
             // 현재 누적 공부시간이 더 많은 경우
-            binding.timeCompared.text = clockFormat.calSecToKorean(gap)
+            binding.timeCompared.text = ClockFormat.calSecToKorean(gap)
             binding.timeComparedText1.text = getString(R.string.statistic_graph_middle_moreless)
             binding.timeComparedText2.text = getString(R.string.statistic_graph_more)
         } else if (gap == 0) {
@@ -110,7 +109,7 @@ class StatisticFragment : Fragment() {
         } else {
             // 이달 평균 시간이 더 많은 경우
             gap = Math.abs(gap)
-            binding.timeCompared.text = clockFormat.calSecToKorean(gap)
+            binding.timeCompared.text = ClockFormat.calSecToKorean(gap)
             binding.timeComparedText1.text = getString(R.string.statistic_graph_middle_moreless)
             binding.timeComparedText2.text = getString(R.string.statistic_graph_less)
         }
@@ -132,75 +131,63 @@ class StatisticFragment : Fragment() {
 
     // 차트 데이터 초기화 메서드
     private fun initTimeChartData() {
-//        graphVM.totalGraphData.observe(viewLifecycleOwner) {
-//            studyData = it
-//        }
-//        graphVM.drowsinessGraphData.observe(viewLifecycleOwner) {
-//            drowsinessData = it
-//        }
-//        graphVM.spaceOutGraphData.observe(viewLifecycleOwner) {
-//            spaceOutData = it
-//        }
-        studyData.add(Entry(-540f, 0f))
-        studyData.add(Entry((6 * 60).toFloat(), 2f))
-        studyData.add(Entry((6 * 60 + 20).toFloat(), 1f))
-        studyData.add(Entry((6 * 60 + 40).toFloat(), 2f))
-        studyData.add(Entry((6 * 60 + 100).toFloat(), 1f))
-        studyData.add(Entry((6 * 60 + 110).toFloat(), 2f))
-        studyData.add(Entry((6 * 60 + 120).toFloat(), 0f))
-        studyData.add(Entry((900).toFloat(), 0f))
+        graphVM.getAllLinearResult.observe(viewLifecycleOwner) { isReady ->
+            if (isReady) {
+                studyData = graphVM.getTotalGraphData()
+                drowsinessData = graphVM.getDrowsinessGraphData()
+                spaceOutData = graphVM.getSpaceOutGraphData()
 
-        spaceOutData.add(Entry(-540f, 0f))
-        spaceOutData.add(Entry((6 * 60 + 20).toFloat(), 1f))
-        spaceOutData.add(Entry((6 * 60 + 40).toFloat(), 0f))
+                Log.d("graph_data_1", "$studyData")
+                Log.d("graph_data_2", "$drowsinessData")
+                Log.d("graph_data_3", "$spaceOutData")
 
-        drowsinessData.add(Entry(-540f, 0f))
-        drowsinessData.add(Entry((6 * 60 + 100).toFloat(), 1f))
-        drowsinessData.add(Entry((6 * 60 + 110).toFloat(), 0f))
+                val studyDataSet = LineDataSet(studyData, "onStudy")
+                val drowsinessDataSet = LineDataSet(drowsinessData, "drowsiness")
+                val spaceOutDataSet = LineDataSet(spaceOutData, "spaceOut")
 
-        val studyDataSet = LineDataSet(studyData, "onStudy")
-        studyDataSet.apply {
-            lineWidth = 2F
-            setDrawValues(false)
-            setDrawCircles(false)
-            setDrawFilled(true)
-            fillColor = ContextCompat.getColor(requireContext(), R.color.mainOrangeTrans)
-            color = ContextCompat.getColor(requireContext(), R.color.mainOrange)
-            mode = LineDataSet.Mode.STEPPED
+                studyDataSet.apply {
+                    lineWidth = 2F
+                    setDrawValues(false)
+                    setDrawCircles(false)
+                    setDrawFilled(true)
+                    fillColor = ContextCompat.getColor(requireContext(), R.color.mainOrangeTrans)
+                    color = ContextCompat.getColor(requireContext(), R.color.mainOrange)
+                    mode = LineDataSet.Mode.STEPPED
+                }
+
+                spaceOutDataSet.apply {
+                    lineWidth = 2F
+                    setDrawValues(false)
+                    setDrawCircles(false)
+                    setDrawFilled(true)
+                    fillColor = ContextCompat.getColor(requireContext(), R.color.purple200Trans)
+                    color = ContextCompat.getColor(requireContext(), R.color.purple_200)
+                    mode = LineDataSet.Mode.STEPPED
+                }
+
+                drowsinessDataSet.apply {
+                    lineWidth = 2F
+                    setDrawValues(false)
+                    setDrawCircles(false)
+                    setDrawFilled(true)
+                    fillColor = ContextCompat.getColor(requireContext(), R.color.teal200Trans)
+                    color = ContextCompat.getColor(requireContext(), R.color.teal_200)
+                    mode = LineDataSet.Mode.STEPPED
+                }
+                lineDataSet.add(studyDataSet)
+                lineDataSet.add(spaceOutDataSet)
+                lineDataSet.add(drowsinessDataSet)
+
+                lineData = LineData(lineDataSet)
+                binding.layoutGraph.studyChart.data = lineData
+                binding.layoutGraph.studyChart.invalidate()  // 다시 그리기
+            }
         }
 
-        val spaceOutDataSet = LineDataSet(spaceOutData, "spaceOut")
-        spaceOutDataSet.apply {
-            lineWidth = 2F
-            setDrawValues(false)
-            setDrawCircles(false)
-            setDrawFilled(true)
-            fillColor = ContextCompat.getColor(requireContext(), R.color.purple200Trans)
-            color = ContextCompat.getColor(requireContext(), R.color.purple_200)
-            mode = LineDataSet.Mode.STEPPED
-        }
-
-        val drowsinessDataSet = LineDataSet(drowsinessData, "drowsiness")
-        drowsinessDataSet.apply {
-            lineWidth = 2F
-            setDrawValues(false)
-            setDrawCircles(false)
-            setDrawFilled(true)
-            fillColor = ContextCompat.getColor(requireContext(), R.color.teal200Trans)
-            color = ContextCompat.getColor(requireContext(), R.color.teal_200)
-            mode = LineDataSet.Mode.STEPPED
-        }
-
-        lineDataSet.add(studyDataSet)
-        lineDataSet.add(spaceOutDataSet)
-        lineDataSet.add(drowsinessDataSet)
-        lineData = LineData(lineDataSet)
     }
 
     // 차트 초기화 메서드
     private fun initTimeChart() {
-        initTimeChartData()
-
         binding.layoutGraph.studyChart.run {
             setDrawGridBackground(false)
             setBackgroundColor(Color.WHITE)
@@ -242,37 +229,43 @@ class StatisticFragment : Fragment() {
         val marker = LineMarkerView(requireContext(), R.layout.graph_marker)
         marker.chartView = binding.layoutGraph.studyChart
         binding.layoutGraph.studyChart.marker = marker
-
         binding.layoutGraph.studyChart.description.isEnabled = false  // 설명
-        binding.layoutGraph.studyChart.data = lineData
 
-        binding.layoutGraph.studyChart.invalidate()  // 다시 그리기
+        initTimeChartData()
     }
 
     private fun initPercentageChartData() {
-        timePieData.add(PieEntry(80f, requireActivity().getString(R.string.state_study)))
-        timePieData.add(PieEntry(15f, requireActivity().getString(R.string.state_drowsiness)))
-        timePieData.add(PieEntry(5f, requireActivity().getString(R.string.state_space_out)))
+        graphVM.getAllPieResult.observe(viewLifecycleOwner) { isReady ->
+            if (isReady) {
+                timePieData = graphVM.getPieGraphData()
+                Log.d("graph_pie_data", "$timePieData")
 
-        pieDataSet = PieDataSet(timePieData, "Time Percentage")
-        val pieColor = arrayListOf<Int>(
-            ContextCompat.getColor(requireActivity(), R.color.mainOrange),
-            ContextCompat.getColor(requireActivity(), R.color.teal_200),
-            ContextCompat.getColor(requireActivity(), R.color.purple_200))
-        with(pieDataSet) {
-            sliceSpace = 3f
-            colors = pieColor
-        }
-        pieData = PieData(pieDataSet)
-        with(pieData) {
-            setValueTextSize(11f)
-            setValueTextColor(android.graphics.Color.WHITE)
+                pieDataSet = PieDataSet(timePieData, "Time Percentage")
+                val pieColor = arrayListOf<Int>(
+                    ContextCompat.getColor(requireActivity(), R.color.mainOrange),
+                    ContextCompat.getColor(requireActivity(), R.color.teal_200),
+                    ContextCompat.getColor(requireActivity(), R.color.purple_200))
+
+                pieDataSet.apply {
+                    sliceSpace = 3f
+                    colors = pieColor
+                }
+
+                pieData = PieData(pieDataSet)
+                pieData.apply {
+                    setValueTextSize(11f)
+                    setValueTextColor(Color.WHITE)
+                }
+
+                binding.layoutGraph.studyTimeChart.data = pieData
+                binding.layoutGraph.studyTimeChart.invalidate()
+
+                initPercentageChartView(graphVM.getRealStudyTime(), graphVM.getDrowsinessTime(), graphVM.getSpaceOutTime())
+            }
         }
     }
 
     private fun initPercentageChart() {
-        initPercentageChartData()
-
         binding.layoutGraph.studyTimeChart.run {
             transparentCircleRadius = 95f
             description.isEnabled = false
@@ -283,24 +276,23 @@ class StatisticFragment : Fragment() {
             setHoleColor(Color.WHITE)
 
             legend.isEnabled = false
-            data = pieData
+
+            initPercentageChartData()
         }
-
-
     }
 
-    private fun initPercentageChartView() {
+    private fun initPercentageChartView(study: Int, drowsiness: Int, spaceOut: Int) {
         with(binding.layoutGraph.layoutTimeStudy) {
             tvTimeTitle.text = getString(com.parklee.studywithcam.R.string.state_study)
-            tvTime.text = "00 : 00 : 00"
+            tvTime.text = ClockFormat.calSecToString(study)
         }
         with(binding.layoutGraph.layoutTimeDrowsiness) {
             tvTimeTitle.text = getString(com.parklee.studywithcam.R.string.state_drowsiness)
-            tvTime.text = "00 : 00 : 00"
+            tvTime.text = ClockFormat.calSecToString(drowsiness)
         }
         with(binding.layoutGraph.layoutTimeSpaceOut) {
             tvTimeTitle.text = getString(com.parklee.studywithcam.R.string.state_space_out)
-            tvTime.text = "00 : 00 : 00"
+            tvTime.text = ClockFormat.calSecToString(spaceOut)
         }
     }
 

@@ -41,24 +41,20 @@ class DatabaseRepository(private val studyDao: StudyDAO) {
         return studyDao.getYesterdayTime("$yesterday")
     }
 
-    suspend fun getTodayDisturbSections(type: String): List<Disturb> {
-        val today = LocalDate.now().toString()
-        return studyDao.getTodayDisturbSections(today, type)
+    suspend fun getTodayDisturbSections(date: String, type: String): List<Disturb> {
+        return studyDao.getTodayDisturbSections(date, type)
     }
 
-    suspend fun getTodayStudySections(): List<Study> {
-        val today = LocalDate.now().toString()
-        return studyDao.getTodayStudySections(today)
+    suspend fun getTodayStudySections(date: String): List<Study> {
+        return studyDao.getTodayStudySections(date)
     }
 
-    fun getTodayRealStudyTime(): Flow<Int> {
-        val today = LocalDate.now().toString()
-        return studyDao.getTodayRealStudyTime(today)
+    suspend fun getTodayRealStudyTime(date: String): Int {
+        return studyDao.getTodayRealStudyTime(date)
     }
 
-    fun getTodayDisturbTypeTime(type: String): Flow<Int> {
-        val today = LocalDate.now().toString()
-        return studyDao.getTodayDisturbTypeTime(today, type)
+    suspend fun getTodayDisturbTypeTime(date: String, type: String): Int {
+        return studyDao.getTodayDisturbTypeTime(date, type)
     }
 
 }

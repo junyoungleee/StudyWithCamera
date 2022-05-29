@@ -9,8 +9,11 @@ import android.view.Gravity
 import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.core.view.GravityCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import com.google.firebase.ml.modeldownloader.CustomModelDownloadConditions
 import com.google.firebase.ml.modeldownloader.DownloadType
@@ -21,6 +24,8 @@ import com.parklee.studywithcam.databinding.ActivityMainBinding
 import com.parklee.studywithcam.view.ui.main.GroupFragment
 import com.parklee.studywithcam.view.ui.main.HomeFragment
 import com.parklee.studywithcam.view.ui.main.StatisticFragment
+import com.parklee.studywithcam.viewmodel.GraphViewModel
+import com.parklee.studywithcam.viewmodel.GraphViewModelFactory
 import com.parklee.studywithcam.viewmodel.ServerViewModel
 import org.tensorflow.lite.Interpreter
 import java.util.*
@@ -31,7 +36,6 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var serverVM: ServerViewModel  // Test
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

@@ -2,6 +2,8 @@ package com.parklee.studywithcam.viewmodel
 
 import android.util.Log
 import androidx.lifecycle.*
+import com.parklee.studywithcam.SWCapplication
+import com.parklee.studywithcam.model.entity.DailyStudy
 import com.parklee.studywithcam.model.entity.Disturb
 import com.parklee.studywithcam.model.entity.Study
 import com.parklee.studywithcam.repository.DatabaseRepository
@@ -86,7 +88,7 @@ class StudyViewModel(private val dbRepo: DatabaseRepository): ViewModel()  {
         val today = SimpleDateFormat("yyyy-MM-dd").format(System.currentTimeMillis()).toString()
         val end = SimpleDateFormat("HH:mm:ss").format(System.currentTimeMillis())
         val time = (SimpleDateFormat("HH:mm:ss").parse(today).time - SimpleDateFormat("HH:mm:ss").parse(end).time) / 1000
-        val disturb = Disturb(today, type, disturbStartTime, end, time.toInt())
+        val disturb = Disturb(date = today, type = type, startTime = disturbStartTime, endTime = end, time = time.toInt())
         disturbs.add(disturb)
     }
 
@@ -152,7 +154,8 @@ class StudyViewModel(private val dbRepo: DatabaseRepository): ViewModel()  {
     var studyStartTime: String = ""
 
     fun setStudyStartTime() {
-        studyStartTime = LocalDate.now().toString()
+        studyStartTime = ClockFormat.convertLocalDateToTime()
+        Log.d("study_start_time", studyStartTime)
     }
 
     fun saveStudySection() {
@@ -160,8 +163,21 @@ class StudyViewModel(private val dbRepo: DatabaseRepository): ViewModel()  {
         val end = ClockFormat.convertLocalDateToTime()
         val gap = ClockFormat.calculateTimeGap(studyStartTime, end)
         viewModelScope.launch {
-            dbRepo.insertStudySection(Study(today, studyStartTime, end, gap))
+            dbRepo.insertStudySection(Study(date = today, startTime = studyStartTime, endTime = end, time = gap))
         }
+    }
+
+    fun saveAndUpdateDailyStudy(cumulatedTime: Int) {
+        val today = LocalDate.now().toString()
+        viewModelScope.launch {
+            dbRepo.insertDayStudy(DailyStudy(date = today, time = cumulatedTime))
+        }
+    }
+
+    fun saveStudyData(cumulatedTime: Int) {
+        saveDisturbSection()
+        saveStudySection()
+        saveAndUpdateDailyStudy(cumulatedTime)
     }
 
 

@@ -1,32 +1,34 @@
 package com.parklee.studywithcam.view.format
 
+import android.annotation.SuppressLint
 import android.provider.Settings.Global.getString
 import com.parklee.studywithcam.R
 import java.text.SimpleDateFormat
 import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 class ClockFormat {
-    // 타이머 String 생성
-    fun calSecToString(time: Int): String {
-        var hour = time / 3600
-        var min = (time - (hour*3600)) / 60
-        var sec = (time - (hour*3600)) % 60
-        return "${makeText(hour)} : ${makeText(min)} : ${makeText(sec)}"
-    }
-
-    fun calSecToKorean(time: Int): String {
-        var hour = time / 3600
-        var min = (time - (hour*3600)) / 60
-        return "${makeText(hour)}시간 ${makeText(min)}분"
-    }
-
-    private fun makeText(t: Int): String {
-        if (t < 10) return "0${t}" else return "$t"
-    }
-
     companion object {
+        // 타이머 String 생성
+        fun calSecToString(time: Int): String {
+            var hour = time / 3600
+            var min = (time - (hour*3600)) / 60
+            var sec = (time - (hour*3600)) % 60
+            return "${makeText(hour)} : ${makeText(min)} : ${makeText(sec)}"
+        }
+
+        fun calSecToKorean(time: Int): String {
+            var hour = time / 3600
+            var min = (time - (hour*3600)) / 60
+            return "${makeText(hour)}시간 ${makeText(min)}분"
+        }
+
+        private fun makeText(t: Int): String {
+            if (t < 10) return "0${t}" else return "$t"
+        }
+
         fun convertTimestampToTime(timestamp: Long): String{
-            val sdf = SimpleDateFormat("hh:mm:ss")
+            val sdf = SimpleDateFormat("HH:mm:ss")
             val time = sdf.format(timestamp)
 
             return time
@@ -34,7 +36,7 @@ class ClockFormat {
 
         fun convertLocalDateToTime(): String{
             val now = LocalDateTime.now()
-            val sdf = SimpleDateFormat("hh:mm:ss")
+            val sdf = DateTimeFormatter.ofPattern("HH:mm:ss")
             val time = sdf.format(now)
 
             return time
